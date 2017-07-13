@@ -28,17 +28,17 @@ class CytoscapeJsRenderer extends Component {
   updateCyjsInternal = (network, cyjs) => {
 
     // React only when network data is available.
-    if(network === undefined || network === null) {
+    if (network === undefined || network === null) {
       return
     }
 
-    if(network.elements.nodes.length === 0) {
+    if (network.elements.nodes.length === 0) {
       return
     }
 
     let cy = null
 
-    if(cyjs == null) {
+    if (cyjs === null) {
       cy = this.state.cyjs
     } else {
       cy = cyjs
@@ -50,7 +50,7 @@ class CytoscapeJsRenderer extends Component {
     cy.add(network.elements.edges)
 
     const layout = this.props.rendererOptions.layout
-    if(layout !== undefined && layout !== null) {
+    if (layout !== undefined && layout !== null) {
       console.log("Layout-----------------------------------------------")
       console.log(layout)
       this.applyLayout(layout)
@@ -71,7 +71,7 @@ class CytoscapeJsRenderer extends Component {
     console.log(this.props.networkStyle.name)
 
     // Use default visual style if not available.
-    if(visualStyle === undefined || visualStyle === null) {
+    if (visualStyle === undefined || visualStyle === null) {
       visualStyle = config.DEF_VS
     }
 
@@ -113,7 +113,7 @@ class CytoscapeJsRenderer extends Component {
     let commandExecuted = false
 
     const command = nextProps.command
-    if(command !== this.props.command) {
+    if (command !== this.props.command) {
       this.runCommand(command);
     }
 
@@ -123,11 +123,11 @@ class CytoscapeJsRenderer extends Component {
     // Check visual style
     const newVs = nextProps.networkStyle
 
-    if(newVs !== undefined || newVS !== null) {
+    if (newVs !== undefined || newVS !== null) {
       const name = this.props.networkStyle.name
       const newName = newVs.name
 
-      if(name !== newName) {
+      if (name !== newName) {
         console.log("=========== <<<<<<< Apply NEW Style =========================================");
         this.state.cyjs.style(newVs.style)
       }
@@ -138,7 +138,7 @@ class CytoscapeJsRenderer extends Component {
       return
     }
 
-    if(this.props.networkId === nextProps.networkId) {
+    if (this.props.networkId === nextProps.networkId) {
       console.log("=========== SAME DATA");
       return
     }
@@ -195,20 +195,20 @@ class CytoscapeJsRenderer extends Component {
           console.log('___ NODE')
           console.log(node)
           console.log(node.data('id'))
-          if(node.data('Gene_or_Term') === 'Gene') {
+          if (node.data('Gene_or_Term') === 'Gene') {
             node.position({
               x: 1600,
-              y: sourcePos.y + (idx*30)
+              y: sourcePos.y + (idx * 30)
             })
             idx++
           }
         });
 
-    } else if(commandName === 'select') {
+    } else if (commandName === 'select') {
       const idList = commandParams.idList
 
       let selected = idList.map(id => (id.replace(/\:/, '\\:')))
-      selected = selected.map(id=>('#' + id))
+      selected = selected.map(id => ('#' + id))
       console.log(selected)
 
       console.log("2!!!!!!!!!!!! To be selected:")
@@ -228,13 +228,13 @@ class CytoscapeJsRenderer extends Component {
       console.log('222++++++++++++ selected node list +++++++++')
 
       // cy.fit(target, 500)
-    } else if(commandName === 'focus') {
+    } else if (commandName === 'focus') {
 
       console.log('+++ Focus to a node +++++++++')
       const idList = commandParams.idList
 
       let selected = idList.map(id => (id.replace(/\:/, '\\:')))
-      selected = selected.map(id=>('#' + id))
+      selected = selected.map(id => ('#' + id))
       const strVal = selected.toString()
 
       const target = cy.elements(strVal)
@@ -252,7 +252,7 @@ class CytoscapeJsRenderer extends Component {
       const filterType = options.type
 
 
-      if(filterType === 'numeric') {
+      if (filterType === 'numeric') {
         const range = options.range
         const toBeShown = cy.elements(range)
 
@@ -278,17 +278,17 @@ class CytoscapeJsRenderer extends Component {
 
     const cy = this.state.cyjs;
 
-    if(layout !== undefined) {
+    if (layout !== undefined) {
       cy.layout({
-          name: layout
-        })
+        name: layout
+      })
 
       this.setState({currentLayout: layout})
     }
   }
 
   findPath = (s, g) => {
-    const aStar = this.state.cyjs.elements().aStar({ root: "#" + s, goal: "#"+ g });
+    const aStar = this.state.cyjs.elements().aStar({root: "#" + s, goal: "#" + g});
     aStar.path.select();
   }
 
@@ -304,7 +304,7 @@ class CytoscapeJsRenderer extends Component {
 
     console.log(event)
 
-    if(target === undefined || target === null) {
+    if (target === undefined || target === null) {
       return
     }
 
@@ -319,22 +319,23 @@ class CytoscapeJsRenderer extends Component {
       case config.CY_EVENTS.boxselect:
 
         // Handle multiple selection
-        if(this.state.boxSelection) {
-          const nodes = cy.$('node:selected').map(node=> {
+        if (this.state.boxSelection) {
+          const nodes = cy.$('node:selected').map(node => {
 
             const nodeData = node.data()
             nodeProps[nodeData.id] = nodeData
 
-            return nodeData.id});
-          const edges = cy.$('edge:selected').map(edge=>edge.data().id);
+            return nodeData.id
+          });
+          const edges = cy.$('edge:selected').map(edge => edge.data().id);
 
           this.props.eventHandlers.selectNodes(nodes, nodeProps)
           this.props.eventHandlers.selectEdges(edges)
-          this.setState({ boxSelection: false });
+          this.setState({boxSelection: false});
         }
         break;
       case config.CY_EVENTS.select:
-        if(!this.state.boxSelection) {
+        if (!this.state.boxSelection) {
           if (target.isNode()) {
             const nodeData = target.data()
             const nodeId = nodeData.id
@@ -349,7 +350,7 @@ class CytoscapeJsRenderer extends Component {
         }
         break;
       case config.CY_EVENTS.unselect:
-        if(target.isNode()) {
+        if (target.isNode()) {
           this.props.eventHandlers.deselectNodes([target.data().id])
         } else {
           this.props.eventHandlers.deselectEdges([target.data().id])
@@ -370,8 +371,8 @@ class CytoscapeJsRenderer extends Component {
   setEventListener(cy) {
     cy.on(config.SUPPORTED_EVENTS, this.cyEventHandler)
 
-    cy.on('tap', function(e){
-      if( e.target === cy ){
+    cy.on('tap', function (e) {
+      if (e.target === cy) {
         cy.elements().removeClass('faded focused');
       }
     })
@@ -382,7 +383,7 @@ class CytoscapeJsRenderer extends Component {
     console.log('----- Base tag rendered external (should be called only once)-----')
 
     return (
-      <div ref={(cyjs) => this.cyjs = cyjs} style={this.props.style} />
+      <div ref={(cyjs) => this.cyjs = cyjs} style={this.props.style}/>
     )
   }
 }
