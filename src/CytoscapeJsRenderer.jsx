@@ -273,9 +273,6 @@ class CytoscapeJsRenderer extends Component {
   }
 
   applyLayout = layout => {
-    console.log('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++APPLY LAY +++++++++')
-    console.log(layout)
-
     const cy = this.state.cyjs;
 
     if (layout !== undefined) {
@@ -380,8 +377,6 @@ class CytoscapeJsRenderer extends Component {
 
 
   render() {
-    console.log('----- Base tag rendered external (should be called only once)-----')
-
     return (
       <div ref={(cyjs) => this.cyjs = cyjs} style={this.props.style}/>
     )
