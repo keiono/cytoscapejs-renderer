@@ -51,8 +51,6 @@ class CytoscapeJsRenderer extends Component {
 
     const layout = this.props.rendererOptions.layout
     if (layout !== undefined && layout !== null) {
-      console.log("Layout-----------------------------------------------")
-      console.log(layout)
       this.applyLayout(layout)
     }
     cy.fit()
@@ -293,11 +291,12 @@ class CytoscapeJsRenderer extends Component {
   cyEventHandler = event => {
     this.state.cyjs.off(config.SUPPORTED_EVENTS)
 
-    console.log("*** Event Handler called!")
+    console.log("@@@@@@@@@*** Event Handler called!")
 
     const cy = this.state.cyjs
-    const eventType = event.originalEvent.type;
+    // const eventType = event.originalEvent.type;
     const target = event.target;
+    const eventType = event.target.type;
 
     console.log(event)
 
