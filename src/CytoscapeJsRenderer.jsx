@@ -1,15 +1,12 @@
 import React, {Component} from 'react'
 import cytoscape from 'cytoscape'
-
 import * as config from './CytoscapeJsConfig'
 
 
 /**
  * Renderer using Cytoscape.js
- *
  */
 class CytoscapeJsRenderer extends Component {
-
   constructor(props) {
     super(props)
 
@@ -19,7 +16,6 @@ class CytoscapeJsRenderer extends Component {
       currentLayout: null
     }
   }
-
 
   updateCyjs = network => {
     this.updateCyjsInternal(network, null)
@@ -58,15 +54,11 @@ class CytoscapeJsRenderer extends Component {
 
     // At least executed one time.
     this.setState({rendered: true})
-    console.log("=========== CytoscapeJS rendered network data ==========");
   }
 
   componentDidMount() {
-
     // Create Cytoscape.js instance here, only once!
     let visualStyle = this.props.networkStyle.style
-    console.log("######### Original style name:");
-    console.log(this.props.networkStyle.name)
 
     // Use default visual style if not available.
     if (visualStyle === undefined || visualStyle === null) {
@@ -99,16 +91,10 @@ class CytoscapeJsRenderer extends Component {
    * This is the main function to determin whether update is necessary or not.
    */
   componentWillReceiveProps(nextProps) {
-    console.log(this.props)
-    console.log(nextProps)
-
     // Check status of network data
     if (nextProps === undefined || nextProps.network === undefined) {
-      console.log("=========== NO DATA");
       return
     }
-
-    let commandExecuted = false
 
     const command = nextProps.command
     if (command !== this.props.command) {
@@ -116,7 +102,6 @@ class CytoscapeJsRenderer extends Component {
     }
 
     // this.applyLayout(nextProps.rendererOptions.layout)
-
 
     // Check visual style
     const newVs = nextProps.networkStyle
@@ -126,18 +111,15 @@ class CytoscapeJsRenderer extends Component {
       const newName = newVs.name
 
       if (name !== newName) {
-        console.log("=========== <<<<<<< Apply NEW Style =========================================");
         this.state.cyjs.style(newVs.style)
       }
     }
 
     if (nextProps.network === this.props.network) {
-      console.log("=========== SAME NET");
       return
     }
 
     if (this.props.networkId === nextProps.networkId) {
-      console.log("=========== SAME DATA");
       return
     }
 
@@ -153,14 +135,8 @@ class CytoscapeJsRenderer extends Component {
 
   runCommand = command => {
 
-    console.log('++++++++++++ COMMAND +++++++++')
-    console.log(command)
-    console.log("command for ------------------------------------------------------------------------------------------");
-    console.log(this.props.network)
-
     // Execute Cytoscape command
     if (command === null) {
-      console.log('===No command===');
       return
     }
 
@@ -168,7 +144,6 @@ class CytoscapeJsRenderer extends Component {
     this.state.cyjs.off(config.SUPPORTED_EVENTS)
 
     const cy = this.state.cyjs
-
     const commandName = command.command
     const commandParams = command.parameters
 
@@ -190,9 +165,6 @@ class CytoscapeJsRenderer extends Component {
 
       sourceNode.incomers().select().nodes()
         .forEach(node => {
-          console.log('___ NODE')
-          console.log(node)
-          console.log(node.data('id'))
           if (node.data('Gene_or_Term') === 'Gene') {
             node.position({
               x: 1600,
@@ -209,28 +181,17 @@ class CytoscapeJsRenderer extends Component {
       selected = selected.map(id => ('#' + id))
       console.log(selected)
 
-      console.log("2!!!!!!!!!!!! To be selected:")
       const strVal = selected.toString()
-
-      console.log(strVal)
-
-
       const target = cy.elements(strVal)
-
-      console.log(target)
 
       cy.elements().addClass('faded')
       target.removeClass('faded')
 
       target.select()
-      console.log('222++++++++++++ selected node list +++++++++')
-
       // cy.fit(target, 500)
     } else if (commandName === 'focus') {
 
-      console.log('+++ Focus to a node +++++++++')
       const idList = commandParams.idList
-
       let selected = idList.map(id => (id.replace(/\:/, '\\:')))
       selected = selected.map(id => ('#' + id))
       const strVal = selected.toString()
@@ -242,24 +203,17 @@ class CytoscapeJsRenderer extends Component {
       target.addClass('focused')
 
       cy.fit(target, 400)
-      console.log('++++++++++++ FIT +++++++++')
 
     } else if (commandName === 'filter') {
       const options = commandParams.options
-
       const filterType = options.type
-
 
       if (filterType === 'numeric') {
         const range = options.range
         const toBeShown = cy.elements(range)
 
         cy.edges().addClass('dark')
-
-        console.log("**shown edges")
-        console.log(toBeShown)
         toBeShown.removeClass('dark')
-        console.log('++++++++++++ hidden2!! +++++++++')
       }
     }
 
@@ -291,14 +245,10 @@ class CytoscapeJsRenderer extends Component {
   cyEventHandler = event => {
     this.state.cyjs.off(config.SUPPORTED_EVENTS)
 
-    console.log("@@@@@@@@@*** Event Handler called!")
-
     const cy = this.state.cyjs
     // const eventType = event.originalEvent.type;
     const target = event.target;
     const eventType = event.target.type;
-
-    console.log(event)
 
     if (target === undefined || target === null) {
       return
@@ -356,9 +306,7 @@ class CytoscapeJsRenderer extends Component {
       default:
         break;
     }
-
     this.state.cyjs.on(config.SUPPORTED_EVENTS, this.cyEventHandler)
-    console.log("*** Event handling finished")
   }
 
   /**
@@ -373,7 +321,6 @@ class CytoscapeJsRenderer extends Component {
       }
     })
   }
-
 
   render() {
     return (
