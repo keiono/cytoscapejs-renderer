@@ -2,7 +2,7 @@ const webpack = require('webpack');
 const path = require('path');
 
 export default () => ({
-  devtool: 'source-map',
+  devtool: 'inline-source-map',
   context: path.join(__dirname, './src'),
 
   entry: {

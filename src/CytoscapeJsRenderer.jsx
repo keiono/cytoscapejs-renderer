@@ -58,7 +58,15 @@ class CytoscapeJsRenderer extends Component {
 
   componentDidMount() {
     // Create Cytoscape.js instance here, only once!
-    let visualStyle = this.props.networkStyle.style
+    const netStyleProp = this.props.networkStyle
+
+    let visualStyle = null
+
+    if(netStyleProp === undefined) {
+      visualStyle = config.DEF_VS
+    } else {
+      visualStyle = netStyleProp.style
+    }
 
     // Use default visual style if not available.
     if (visualStyle === undefined || visualStyle === null) {
