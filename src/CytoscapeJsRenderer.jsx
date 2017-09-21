@@ -251,12 +251,16 @@ class CytoscapeJsRenderer extends Component {
 
 
   cyEventHandler = event => {
+    console.log("########################## CY EVENT")
+    console.log(event)
+
+
     this.state.cyjs.off(config.SUPPORTED_EVENTS)
 
     const cy = this.state.cyjs
     // const eventType = event.originalEvent.type;
     const target = event.target;
-    const eventType = event.target.type;
+    const eventType = event.type;
 
     if (target === undefined || target === null) {
       return
@@ -264,6 +268,9 @@ class CytoscapeJsRenderer extends Component {
 
     const nodeProps = {}
     const edgeProps = {}
+
+    console.log(eventType)
+
 
     switch (eventType) {
       case config.CY_EVENTS.boxstart:
