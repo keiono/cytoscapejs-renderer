@@ -6,7 +6,7 @@ export default () => ({
   context: path.join(__dirname, './src'),
 
   entry: {
-    app: './CytoscapeJsRenderer.jsx'
+    app: './index.js'
   },
 
   output: {
