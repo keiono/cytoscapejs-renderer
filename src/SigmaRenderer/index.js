@@ -1,60 +1,59 @@
 import React, {Component} from 'react'
 import * as sg from 'sigma'
+import PropTypes from 'prop-types'
+import Immutable from 'immutable'
+
+import CXStyleUtil from './CXStyleUtil'
 
 
-const SIGMA_SETTINGS = {
-  // 'defaultLabelColor': '#000000',
-  // 'defaultNodeColor': '#00DDFF',
-  // 'defaultEdgeColor': 'rgba(190,190,190,0.3)',
+const DEF_SIGMA_SETTINGS = {
+  'defaultLabelColor': '#000000',
+  'defaultNodeColor': '#00DDFF',
+  'defaultEdgeColor': 'rgba(190,190,190,0.3)',
   'labelColor': 'node',
   'edgeColor': 'source',
   'mouseZoomDuration': 0,
   'mouseInertiaDuration': 0,
   'doubleClickZoomDuration': 5,
-  labelThreshold: 8,
+  'labelThreshold': 8,
   'zoomingRatio': 1.2,
-  labelSizeRatio: 3,
-  // 'nodesPowRatio': 0.001,
-  // 'edgesPowRatio': 0.1,
+  'labelSizeRatio': 3,
   'labelSize': 'propertional',
-  // 'defaultNodeBorderColor': '#FFFFFF'
 
+  'zoomMin': 0.003,
+  'minEdgeSize': 0.5,
+  'maxEdgeSize': 4,
+  'enableEdgeHovering': true,
+  'edgeHoverColor': 'edge',
+  'defaultEdgeHoverColor': '#000',
+  'edgeHoverSizeRatio': 1,
+  'edgeHoverExtremities': true
 }
 
-const getColor = type => {
-  if(type === undefined) {
-    return '#777777'
-  } else if(type === 'Gene') {
-    return 'rgba(190,255,190,0.2)'
-  } else if(type === 'Term') {
-    return '#AAFFAA'
-  } else {
-    return '#777777'
-  }
-}
-
-const getEdgeColor = type => {
-  if(type === 'Tree') {
-    return '#666666'
-  } else {
-    return 'rgba(190,255,190,0.2)'
-  }
-}
 
 class SigmaRenderer extends Component {
 
-  constructor(props, context) {
+  constructor (props, context) {
 
-    super(props, context);
+    super(props, context)
+
+    this.state = {
+      'initialized': false
+    }
+
+    this.styleUtil = new CXStyleUtil()
 
   }
 
-  componentDidMount() {
+  componentDidMount () {
+
+    console.log(`Mount: ${this.state.initialized}`)
+    this.setState({'initialized': true})
 
     const nodes = this.props.network.elements.nodes
     const edges = this.props.network.elements.edges
 
-    const s = new sg.sigma({'settings': {'zoomMin': 0.003}})
+    const s = new sg.sigma({'settings': DEF_SIGMA_SETTINGS})
     const cam = s.addCamera();
 
 
@@ -62,15 +61,16 @@ class SigmaRenderer extends Component {
 
       const nodeData = node.data
       const sigmaNode = {
-        id: nodeData.id,
-        label: nodeData.name,
-        x: node.position.x,
-        y: node.position.y,
-        size: nodeData.Size + 2,
-        color: getColor(nodeData.NodeType)
+        'id': nodeData.id,
+        'label': nodeData.name,
+        'x': node.position.x,
+        'y': node.position.y,
+        'size': nodeData.Size,
+        'color': this.styleUtil.getNodeColor(nodeData)
       }
 
       s.graph.addNode(sigmaNode);
+
     })
 
     edges.forEach((edge) => {
@@ -80,30 +80,97 @@ class SigmaRenderer extends Component {
         'id': ed.id,
         'source': ed.source,
         'target': ed.target,
-        'size': 0.5,
-        color: getEdgeColor(ed.Is_Tree_Edge)
+        'size': 1,
+        'color': '#FFFFFF',
+        'hover_color': '#FF0000'
       });
 
     })
 
 
+    this.addEventHandlers(s)
+
+
     s.addRenderer({
-      container: this.sigmaView,
-      type: 'webgl',
-      camera: cam,
-      settings: SIGMA_SETTINGS
+      'container': this.sigmaView,
+      'type': this.props.rendererType,
+      'camera': cam
     });
-    s.refresh();
+    s.refresh()
+
 
   }
 
-  render() {
+  addEventHandlers = (s) => {
+
+    s.bind('overNode outNode clickNode doubleClickNode rightClickNode', (e) => {
+
+      this.nodeSelected(e.data.node)
+
+    })
+
+
+    if (this.props.rendererType !== 'webgl') {
+
+      s.bind('overEdge outEdge clickEdge doubleClickEdge rightClickEdge', (e) => {
+
+        console.log(e.type, e.data.edge, e.data.captor);
+
+      });
+
+    }
+
+    s.bind('clickStage', (e) => {
+
+      console.log(e.type, e.data.captor);
+
+    });
+
+    s.bind('doubleClickStage rightClickStage', (e) => {
+
+      console.log(e.type, e.data.captor);
+
+    });
+
+  }
+
+  nodeSelected = (node) => {
+
+    console.log('Selected: ')
+    console.log(node)
+
+  }
+
+  edgeSelected = (edge) => {
+
+    console.log('Edge Selected: ')
+    console.log(edge)
+
+  }
+
+  render () {
+
     return (
-      <div ref={(sigmaView) => this.sigmaView = sigmaView} style={this.props.style}/>
+      <div
+        ref={(sigmaView) => this.sigmaView = sigmaView}
+          style={this.props.style}
+      />
     )
+
   }
 
 }
+
+SigmaRenderer.propTypes = {
+  // Renderer type: 'webgl' or 'canvas'
+  'rendererType': PropTypes.string,
+
+  // Network Style in CyVisualProperties object
+  'networkStyle': PropTypes.object
+}
+
+SigmaRenderer.defaultProps = {'rendererType': 'canvas'}
+
 
 
 export default SigmaRenderer
