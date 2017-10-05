@@ -1,31 +1,29 @@
 export const DEFAULT_SETTINGS = {
+
   'defaultLabelColor': '#000000',
-  'defaultNodeColor': '#00DDFF',
-  'defaultEdgeColor': 'rgba(190,190,190,0.2)',
-  defaultHoverLabelBGColor: 'rgba(255,255,255,0.1)',
+  'defaultNodeColor': '#777777',
+  'defaultEdgeColor': '#777777',
+  defaultHoverLabelBGColor: '#EEEEFF',
   'labelColor': 'node',
   // 'edgeColor': 'source',
   'mouseZoomDuration': 0,
   'mouseInertiaDuration': 0,
-  // 'doubleClickZoomDuration': 5,
   doubleClickEnabled: false,
-  'labelThreshold': 8,
-  'zoomingRatio': 1.2,
+  'labelThreshold': 5,
+  'zoomingRatio': 1.1,
   'labelSizeRatio': 3,
   'labelSize': 'propertional',
-  defaultEdgeType: 'arrow',
-
 
   'zoomMin': 0.003,
-  'minEdgeSize': 0.001,
-  // 'maxEdgeSize': 5,
-  maxNodeSize: 35,
+  maxNodeSize: 25,
 
-  enableEdgeHovering: true,
-  'edgeHoverColor': 'edge',
-  'defaultEdgeHoverColor': '#000',
-  'edgeHoverSizeRatio': 1,
-  'edgeHoverExtremities': true
+  minEdgeSize: 0.0001,
+  maxEdgeSize: 0.3,
+  enableEdgeHovering: false,
+  edgeHoverColor: 'edge',
+  defaultEdgeHoverColor: '#000',
+  edgeHoverSizeRatio: 1,
+  edgeHoverExtremities: true
 }
 
 export const RENDERER_TYPE = {

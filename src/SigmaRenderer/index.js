@@ -73,7 +73,6 @@ class SigmaRenderer extends Component {
 
       if(ed.Is_Tree_Edge !== 'Tree') {
         newEdge.color = '#FFAA00'
-        newEdge['type'] = 'curve'
 
         const source = hiddenEdges[ed.source]
         const target = hiddenEdges[ed.target]
@@ -98,33 +97,23 @@ class SigmaRenderer extends Component {
     this.hiddenEdges = hiddenEdges
 
     const settings = DEFAULT_SETTINGS
-    const rendererOptions = this.props.rendererOptions
-    let rendererType = rendererOptions.rendererType
 
-    // This is not compatible with WegGL renderer.
-    if(rendererType === undefined || rendererType === RENDERER_TYPE.WEBGL) {
-      settings.enableEdgeHovering = false
-    }
 
     // Create new instance of renderer with new camera
     this.s = new sg.sigma({
       graph: graph,
       'settings': settings
     })
-    this.cam = this.s.addCamera();
+    this.cam = this.s.addCamera({isAnimated: true});
 
     this.addEventHandlers()
 
     this.colors = colors
 
-    if(rendererType === undefined) {
-      rendererType = RENDERER_TYPE.CANVAS
-      settings.enableEdgeHovering = true
-    }
 
     this.s.addRenderer({
       'container': this.sigmaView,
-      'type': rendererType,
+      'type': RENDERER_TYPE.WEBGL,
       'camera': this.cam
     });
     this.s.refresh()
@@ -141,15 +130,13 @@ class SigmaRenderer extends Component {
     })
 
 
-    if (this.props.rendererType !== undefined && this.props.rendererType !== RENDERER_TYPE.WEBGL) {
 
-      this.s.bind('overEdge clickEdge', (e) => {
+      // this.s.bind('overEdge clickEdge', (e) => {
+      //
+      //   console.log(e.type, e.data.edge, e.data.captor);
+      //
+      // });
 
-        console.log(e.type, e.data.edge, e.data.captor);
-
-      });
-
-    }
 
     this.s.bind('clickStage', (e) => {
 
@@ -157,10 +144,20 @@ class SigmaRenderer extends Component {
       console.log(e.type, e.data.captor);
 
       const nodes = this.s.graph.nodes()
+      const edges = this.s.graph.edges()
+
       let i = nodes.length
       while(i--) {
         nodes[i].color = this.colors[i]
       }
+
+      let j = edges.length
+
+      while(j--) {
+        edges[j].color = '#777777'
+      }
+
+      this.resetNodePositions()
 
       const currentHidden = this.state.currentHiddenEdges
 
@@ -184,7 +181,7 @@ class SigmaRenderer extends Component {
       sg.misc.animation.camera(
         this.cam,
         {x: 0, y: 0, angle: 0, ratio: 1},
-        {duration: 350}
+        {duration: 250}
       )
 
     });
@@ -207,10 +204,22 @@ class SigmaRenderer extends Component {
     this.setState({currentHiddenEdges: undefined})
 
     const nodes = this.s.graph.nodes()
+    const edges = this.s.graph.edges()
+
+    this.resetNodePositions()
+
+
+    const disabledColor = '#F5F5F5'
     let i = nodes.length
 
     while(i--) {
-      nodes[i].color = '#EEEEEE'
+      nodes[i].color = disabledColor
+    }
+
+    let j = edges.length
+
+    while(j--) {
+      edges[j].color = disabledColor
     }
 
     // Highlight
@@ -218,6 +227,7 @@ class SigmaRenderer extends Component {
 
     const hidden = this.hiddenEdges[node.id]
 
+    const hiddenNodes = {}
 
     if(hidden !== undefined) {
       this.setState({currentHiddenEdges: hidden})
@@ -229,12 +239,16 @@ class SigmaRenderer extends Component {
 
         const source = hiddenEdge.source
         const target = hiddenEdge.target
+        const sn = this.s.graph.nodes(source)
+        const tn = this.s.graph.nodes(target)
+        hiddenNodes[sn.id] = [sn.x, sn.y]
+        hiddenNodes[tn.id] = [tn.x, tn.y]
+
 
         let nNode = null
         if(source.id !== node.id) {
           nNode = this.s.graph.nodes(source)
         }else {
-
           nNode = this.s.graph.nodes(target)
         }
 
@@ -244,11 +258,44 @@ class SigmaRenderer extends Component {
         nNode.x = newPos[0] + node.x
         nNode.y = newPos[1] + node.y
 
+
         nNode.color = '#FF7700'
+      })
+
+
+      // Move camera
+      sg.misc.animation.camera(
+        this.cam,
+        {
+          x: node[this.cam.readPrefix + 'x'],
+          y: node[this.cam.readPrefix + 'y'],
+          ratio: 0.02
+        },
+        {
+          duration: 450
+        }
+      );
+    }
+
+    this.setState({currentHiddenNodes: hiddenNodes})
+
+    this.s.refresh()
+
+  }
+
+  resetNodePositions = () => {
+    const hiddenNodes = this.state.currentHiddenNodes
+
+    if(hiddenNodes !== undefined) {
+      const hiddenIds = Object.keys(hiddenNodes)
+      console.log(hiddenIds)
+      hiddenIds.forEach(key=> {
+        this.s.graph.nodes(key).x = hiddenNodes[key][0]
+        this.s.graph.nodes(key).y = hiddenNodes[key][1]
       })
     }
 
-    this.s.refresh()
+    this.setState({currentHiddenNodes: undefined})
 
   }
 
@@ -290,7 +337,7 @@ SigmaRenderer.defaultProps = {
 
     settings: DEFAULT_SETTINGS,
 
-    rendererType: RENDERER_TYPE.WEBGL,
+    rendererType: RENDERER_TYPE.CANVAS,
   }
 }
 
