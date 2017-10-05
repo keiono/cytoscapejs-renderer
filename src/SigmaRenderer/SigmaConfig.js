@@ -9,7 +9,7 @@ export const DEFAULT_SETTINGS = {
   'mouseInertiaDuration': 0,
   // 'doubleClickZoomDuration': 5,
   doubleClickEnabled: false,
-  'labelThreshold': 9,
+  'labelThreshold': 8,
   'zoomingRatio': 1.2,
   'labelSizeRatio': 3,
   'labelSize': 'propertional',
@@ -17,9 +17,9 @@ export const DEFAULT_SETTINGS = {
 
 
   'zoomMin': 0.003,
-  // 'minEdgeSize': 0.1,
+  'minEdgeSize': 0.001,
   // 'maxEdgeSize': 5,
-  maxNodeSize: 30,
+  maxNodeSize: 35,
 
   enableEdgeHovering: true,
   'edgeHoverColor': 'edge',

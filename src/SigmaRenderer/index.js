@@ -54,6 +54,9 @@ class SigmaRenderer extends Component {
       colors[i] = node.color
     }
 
+    const hiddenEdges = {
+
+    }
 
     edges.forEach((edge) => {
 
@@ -63,12 +66,36 @@ class SigmaRenderer extends Component {
         'source': ed.source,
         'target': ed.target,
         'size': 1,
+        type: 'curve',
         'color': this.styleUtil.getEdgeColor(ed.Data),
         'hover_color': this.styleUtil.getEdgeSelectedColor()
       }
 
-      graph.edges.push(newEdge)
+      if(ed.Is_Tree_Edge !== 'Tree') {
+        newEdge.color = '#FFAA00'
+        newEdge['type'] = 'curve'
+
+        const source = hiddenEdges[ed.source]
+        const target = hiddenEdges[ed.target]
+
+        if(source === undefined) {
+          hiddenEdges[ed.source] = [newEdge]
+        } else {
+          source.push(newEdge)
+        }
+
+        if(target === undefined) {
+          hiddenEdges[ed.target] = [newEdge]
+        } else {
+          target.push(newEdge)
+        }
+      } else {
+        graph.edges.push(newEdge)
+      }
+
     })
+
+    this.hiddenEdges = hiddenEdges
 
     const settings = DEFAULT_SETTINGS
     const rendererOptions = this.props.rendererOptions
@@ -91,7 +118,8 @@ class SigmaRenderer extends Component {
     this.colors = colors
 
     if(rendererType === undefined) {
-      rendererType = RENDERER_TYPE.WEBGL
+      rendererType = RENDERER_TYPE.CANVAS
+      settings.enableEdgeHovering = true
     }
 
     this.s.addRenderer({
@@ -134,6 +162,16 @@ class SigmaRenderer extends Component {
         nodes[i].color = this.colors[i]
       }
 
+      const currentHidden = this.state.currentHiddenEdges
+
+      if(currentHidden !== undefined) {
+        currentHidden.forEach(hiddenEdge => {
+          this.s.graph.dropEdge(hiddenEdge.id)
+        })
+      }
+
+      this.setState({currentHiddenEdges: undefined})
+
       this.s.refresh()
 
     });
@@ -155,8 +193,19 @@ class SigmaRenderer extends Component {
 
   nodeSelected = (node) => {
 
-    console.log('Selected: ')
+    console.log('2 Selected: ')
     console.log(node)
+    console.log(this.hiddenEdges[node.id])
+
+    const currentHidden = this.state.currentHiddenEdges
+
+    if(currentHidden !== undefined) {
+      currentHidden.forEach(hiddenEdge => {
+        this.s.graph.dropEdge(hiddenEdge.id)
+      })
+    }
+    this.setState({currentHiddenEdges: undefined})
+
     const nodes = this.s.graph.nodes()
     let i = nodes.length
 
@@ -166,6 +215,38 @@ class SigmaRenderer extends Component {
 
     // Highlight
     node.color = "#FF7700"
+
+    const hidden = this.hiddenEdges[node.id]
+
+
+    if(hidden !== undefined) {
+      this.setState({currentHiddenEdges: hidden})
+
+      let count = 0
+
+      hidden.forEach(hiddenEdge => {
+        this.s.graph.addEdge(hiddenEdge)
+
+        const source = hiddenEdge.source
+        const target = hiddenEdge.target
+
+        let nNode = null
+        if(source.id !== node.id) {
+          nNode = this.s.graph.nodes(source)
+        }else {
+
+          nNode = this.s.graph.nodes(target)
+        }
+
+        const newPos = project(count, 10)
+        count = count + 10
+
+        nNode.x = newPos[0] + node.x
+        nNode.y = newPos[1] + node.y
+
+        nNode.color = '#FF7700'
+      })
+    }
 
     this.s.refresh()
 
@@ -215,6 +296,15 @@ SigmaRenderer.defaultProps = {
 
 const flipColor = nodes => {
 
+}
+
+const project = (x, y) => {
+  const angle = (x - 90) / 180 * Math.PI
+  const radius = y
+  return [
+    radius * Math.cos(angle),
+    radius * Math.sin(angle)
+  ];
 }
 
 
