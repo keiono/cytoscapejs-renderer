@@ -1,7 +1,13 @@
+const NODE_LABEL = {
+  "type" : "PASSTHROUGH",
+  "definition" : "COL=COMMON,T=string"
+}
+
+
 class CXStyleUtil {
 
 
-  constructor(cxStyle = DEF_VISUAL_STYLE) {
+  constructor(network, cxStyle = DEF_VISUAL_STYLE) {
     const style = {}
 
     cxStyle.forEach(entry => {
@@ -16,11 +22,24 @@ class CXStyleUtil {
     })
 
     this._style = style
+    this._network = network
   }
 
 
   getNodeColor = node => {
     return this._style.nodeDefaults['NODE_FILL_COLOR']
+  }
+
+  getEdgeColor = edge => {
+    return this._style.edgeDefaults['EDGE_PAINT']
+  }
+
+  getEdgeSelectedColor = edge => {
+    return this._style.edgeDefaults['EDGE_SELECTED_PAINT']
+  }
+
+  getNodeSize = node => {
+
   }
 }
 
@@ -32,7 +51,7 @@ const DEF_VISUAL_STYLE = [
       'NODE_BORDER_STROKE': 'SOLID',
       'NODE_BORDER_TRANSPARENCY': '255',
       'NODE_BORDER_WIDTH': '2.0',
-      'NODE_FILL_COLOR': '#FF0000',
+      'NODE_FILL_COLOR': '#00EEAA',
       'NODE_HEIGHT': '20.0',
       'NODE_LABEL_COLOR': '#333333',
       'NODE_LABEL_FONT_FACE': 'HelveticaNeue,plain,12',
@@ -54,7 +73,7 @@ const DEF_VISUAL_STYLE = [
       'EDGE_LABEL_FONT_SIZE': '10',
       'EDGE_LABEL_TRANSPARENCY': '255',
       'EDGE_LINE_TYPE': 'SOLID',
-      'EDGE_PAINT': '#323232',
+      'EDGE_PAINT': '#CCCCCC',
       'EDGE_SELECTED_PAINT': '#FF0000',
       'EDGE_TRANSPARENCY': '170',
       'EDGE_WIDTH': '2.0',
