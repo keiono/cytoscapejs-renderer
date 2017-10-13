@@ -10,6 +10,9 @@ import CXStyleUtil from './CXStyleUtil'
 import {CustomShapes} from './plugins/sigma.renderers.customShapes'
 import {ShapeLibrary} from './plugins/shape-library'
 
+
+import {CommandExecutor} from './CommandHandler'
+
 // Renderer types supported by Sigma.js
 
 
@@ -69,6 +72,7 @@ class SigmaRenderer extends Component {
         'y': node.position.y,
         'size': nodeData.Size * 2,
         type: 'def',
+        props: nodeData,
         'color': this.styleUtil.getNodeColor(nodeData)
       }
 
@@ -150,8 +154,14 @@ class SigmaRenderer extends Component {
 
     this.s.bind('clickNode', e => {
 
-      this.nodeSelected(e.data.node)
+      const node = e.data.node
+      const nodeId = node.id
+      const nodeProps = {}
 
+      this.nodeSelected(node)
+      nodeProps[nodeId] = node
+
+      this.props.eventHandlers.selectNodes([nodeId], nodeProps)
     })
 
 
@@ -201,20 +211,18 @@ class SigmaRenderer extends Component {
 
     this.s.bind('doubleClickStage', (e) => {
 
-      console.log("RESTE*******************************")
-      console.log(e.type, e.data.captor);
+      console.log("REset & FIT*******************************")
 
-      sigma.misc.animation.camera(
-        this.cam,
-        {x: 0, y: 0, angle: 0, ratio: 1},
-        {duration: 250}
-      )
+      console.log('cam1')
+      console.log(this.cam)
 
+      const args = [this.cam]
+      CommandExecutor('fitContent', args)
     });
 
   }
 
-  nodeSelected = (node) => {
+  nodeSelected = node => {
 
     console.log('2 Selected: ')
     console.log(node)
