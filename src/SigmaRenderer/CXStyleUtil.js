@@ -1,11 +1,10 @@
 const NODE_LABEL = {
-  "type" : "PASSTHROUGH",
-  "definition" : "COL=COMMON,T=string"
+  'type': 'PASSTHROUGH',
+  'definition': 'COL=COMMON,T=string',
 }
 
 
 class CXStyleUtil {
-
 
   constructor(network, cxStyle = DEF_VISUAL_STYLE) {
     const style = {}
@@ -16,18 +15,32 @@ class CXStyleUtil {
       console.log(entry)
       if (entry['properties_of'] === 'nodes:default') {
         style['nodeDefaults'] = entry['properties']
+        style['nodeMappings'] = entry['mappings']
       } else if (entry['properties_of'] === 'edges:default') {
         style['edgeDefaults'] = entry['properties']
+        style['edgeMappings'] = entry['mappings']
       }
     })
 
     this._style = style
     this._network = network
+
+    if(style['nodeMappings'] !== undefined) {
+      const colorMapping = style['nodeMappings']['NODE_FILL_COLOR']
+      if(colorMapping !== undefined && colorMapping.type === 'PASSTHROUGH') {
+        this.nodeColorPt = this.parsePassthrough(colorMapping.definition)
+      }
+    }
   }
 
 
-  getNodeColor = node => {
-    return this._style.nodeDefaults['NODE_FILL_COLOR']
+  getNodeColor = nodeData => {
+    if(this.nodeColorPt !== undefined) {
+      return this.getPassthroughValue(nodeData)
+    } else {
+      return '#555555'
+      // return this._style.nodeDefaults['NODE_FILL_COLOR']
+    }
   }
 
   getEdgeColor = edge => {
@@ -41,6 +54,41 @@ class CXStyleUtil {
   getNodeSize = node => {
 
   }
+
+  parsePassthrough = passthroughDefinition => {
+
+    const example = {
+      'NODE_FILL_COLOR': {
+        'type': 'PASSTHROUGH',
+        'definition': 'COL=Vis:Fill Color,T=string',
+      },
+    }
+
+    const parts = passthroughDefinition.split(',')
+    if(parts.length !== 2) {
+      throw new EvalError('Invalid Passthrough mapping definition');
+    } else {
+      const columnName = parts[0].split('=')[1]
+      const dataType = parts[1].split('=')[1]
+
+      console.log('-------------------------NEWCLN')
+      const replaced = columnName.replace(/[ :]/g, '_')
+
+      console.log(replaced)
+
+      return {
+        columnName: replaced,
+        dataType: dataType
+      }
+    }
+
+
+  }
+
+  getPassthroughValue = data => (
+    data[this.nodeColorPt.columnName].toString()
+  )
+
 }
 
 const DEF_VISUAL_STYLE = [
@@ -51,7 +99,7 @@ const DEF_VISUAL_STYLE = [
       'NODE_BORDER_STROKE': 'SOLID',
       'NODE_BORDER_TRANSPARENCY': '255',
       'NODE_BORDER_WIDTH': '2.0',
-      'NODE_FILL_COLOR': '#00EEAA',
+      'NODE_FILL_COLOR': '#555555',
       'NODE_HEIGHT': '20.0',
       'NODE_LABEL_COLOR': '#333333',
       'NODE_LABEL_FONT_FACE': 'HelveticaNeue,plain,12',

@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import * as sg from 'sigma'
+import sigma from 'sigma'
 import PropTypes from 'prop-types'
 import Immutable, {Map} from 'immutable'
 
@@ -7,8 +7,14 @@ import {DEFAULT_SETTINGS, RENDERER_TYPE} from './SigmaConfig'
 
 import CXStyleUtil from './CXStyleUtil'
 
+import {CustomShapes} from './plugins/sigma.renderers.customShapes'
+import {ShapeLibrary} from './plugins/shape-library'
+
 // Renderer types supported by Sigma.js
 
+
+const FADED_COLOR = '#aaaaaa'
+const FADED_EDGE_COLOR = '#EEEEEE'
 
 class SigmaRenderer extends Component {
 
@@ -16,14 +22,30 @@ class SigmaRenderer extends Component {
     super(props, context)
 
     this.state = {
-      'initialized': false
+
+      'initialized': false,
+      nodeColors: {},
+      edgeColors: {}
     }
 
 
-    this.styleUtil = new CXStyleUtil()
   }
 
   componentDidMount () {
+
+    const cxData = this.props.network.cxData
+    let cyVS = null
+    if(cxData !== undefined) {
+      cyVS = cxData.cyVisualProperties
+    }
+
+    if(cyVS !== null) {
+      this.styleUtil = new CXStyleUtil(this.props.network, cyVS)
+
+    } else {
+      this.styleUtil = new CXStyleUtil(this.props.network)
+
+    }
 
     const nodes = this.props.network.elements.nodes
     const edges = this.props.network.elements.edges
@@ -34,7 +56,7 @@ class SigmaRenderer extends Component {
     }
 
     const nodesLen = nodes.length
-    const colors = new Array(nodesLen)
+    const colors = {}
 
     let i = nodesLen
     while(i--) {
@@ -46,12 +68,13 @@ class SigmaRenderer extends Component {
         'x': node.position.x,
         'y': node.position.y,
         'size': nodeData.Size * 2,
+        type: 'def',
         'color': this.styleUtil.getNodeColor(nodeData)
       }
 
       graph.nodes.push(sigmaNode)
 
-      colors[i] = node.color
+      colors[nodeData.id] = sigmaNode.color
     }
 
     const hiddenEdges = {
@@ -66,12 +89,12 @@ class SigmaRenderer extends Component {
         'source': ed.source,
         'target': ed.target,
         'size': 1,
-        type: 'curve',
+        type: 'thickLineGPU',
         'color': this.styleUtil.getEdgeColor(ed.Data),
         'hover_color': this.styleUtil.getEdgeSelectedColor()
       }
 
-      if(ed.Is_Tree_Edge !== 'Tree') {
+      if(ed[this.props.edgeTypeTagName] !== 'Tree') {
         newEdge.color = '#FFAA00'
 
         const source = hiddenEdges[ed.source]
@@ -100,7 +123,7 @@ class SigmaRenderer extends Component {
 
 
     // Create new instance of renderer with new camera
-    this.s = new sg.sigma({
+    this.s = new sigma({
       graph: graph,
       'settings': settings
     })
@@ -116,6 +139,8 @@ class SigmaRenderer extends Component {
       'type': RENDERER_TYPE.WEBGL,
       'camera': this.cam
     });
+
+    // CustomShapes.init(this.s)
     this.s.refresh()
 
   }
@@ -148,7 +173,8 @@ class SigmaRenderer extends Component {
 
       let i = nodes.length
       while(i--) {
-        nodes[i].color = this.colors[i]
+        const node = nodes[i]
+        node.color = this.colors[node.id]
       }
 
       let j = edges.length
@@ -178,7 +204,7 @@ class SigmaRenderer extends Component {
       console.log("RESTE*******************************")
       console.log(e.type, e.data.captor);
 
-      sg.misc.animation.camera(
+      sigma.misc.animation.camera(
         this.cam,
         {x: 0, y: 0, angle: 0, ratio: 1},
         {duration: 250}
@@ -209,17 +235,16 @@ class SigmaRenderer extends Component {
     this.resetNodePositions()
 
 
-    const disabledColor = '#F5F5F5'
     let i = nodes.length
 
     while(i--) {
-      nodes[i].color = disabledColor
+      nodes[i].color = FADED_COLOR
     }
 
     let j = edges.length
 
     while(j--) {
-      edges[j].color = disabledColor
+      edges[j].color = FADED_EDGE_COLOR
     }
 
     // Highlight
@@ -233,6 +258,8 @@ class SigmaRenderer extends Component {
       this.setState({currentHiddenEdges: hidden})
 
       let count = 0
+
+      let circleCount = 0
 
       hidden.forEach(hiddenEdge => {
         this.s.graph.addEdge(hiddenEdge)
@@ -252,8 +279,13 @@ class SigmaRenderer extends Component {
           nNode = this.s.graph.nodes(target)
         }
 
-        const newPos = project(count, 10)
+
+        const radius = circleCount * 2 + 9
+        const newPos = project(count + circleCount*2, radius)
         count = count + 10
+        if(count%36 === 0) {
+          circleCount++
+        }
 
         nNode.x = newPos[0] + node.x
         nNode.y = newPos[1] + node.y
@@ -264,7 +296,7 @@ class SigmaRenderer extends Component {
 
 
       // Move camera
-      sg.misc.animation.camera(
+      sigma.misc.animation.camera(
         this.cam,
         {
           x: node[this.cam.readPrefix + 'x'],
@@ -319,6 +351,9 @@ class SigmaRenderer extends Component {
 
 SigmaRenderer.propTypes = {
 
+  // Indicates hidden edge or not.
+  edgeTypeTagName: PropTypes.string,
+
   // Network Style in CyVisualProperties object
   networkStyle: PropTypes.object,
 
@@ -328,6 +363,8 @@ SigmaRenderer.propTypes = {
 
 
 SigmaRenderer.defaultProps = {
+
+  edgeTypeTagName: 'Is_Tree_Edge',
 
   networkStyle: {
 
