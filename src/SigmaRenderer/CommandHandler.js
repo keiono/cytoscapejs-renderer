@@ -3,7 +3,7 @@ import sigma from 'sigma'
 const DEF_ZOOM_RATIO = 1.2
 
 
-const fitContent = (camera) => {
+const fit = (camera) => {
 
   console.log("Camera: ")
   console.log(camera)
@@ -43,16 +43,12 @@ const zoomOut = (camera, zoomRatio = DEF_ZOOM_RATIO) => {
 
 
 const commands = {
-  fitContent,
+  fit,
   zoomIn,
   zoomOut,
 }
 
 export const CommandExecutor = (commandName, args=[]) => {
-
-  console.log("ARGs")
-  console.log(typeof args)
-  console.log(args)
 
   const command = commands[commandName]
   if (command !== undefined) {
@@ -61,9 +57,7 @@ export const CommandExecutor = (commandName, args=[]) => {
     command(...args)
 
   } else {
-
     console.warn(`Command is not available: ${commandName}`)
-
   }
 
 }

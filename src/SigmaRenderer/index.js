@@ -34,6 +34,29 @@ class SigmaRenderer extends Component {
 
   }
 
+
+  shouldComponentUpdate(nextProps, nextState) {
+    // Update is controlled by componentWillReceiveProps()
+    return false
+  }
+
+
+  componentWillReceiveProps(nextProps) {
+
+    const command = nextProps.command
+    if (command !== this.props.command) {
+      this.runCommand(command);
+    }
+  }
+
+  runCommand = (command) => {
+
+    console.log('&&&& COMMAND EXECUTER')
+    console.log(command)
+    CommandExecutor(command.command, [this.cam])
+
+  }
+
   componentDidMount () {
 
     const cxData = this.props.network.cxData
@@ -211,13 +234,7 @@ class SigmaRenderer extends Component {
 
     this.s.bind('doubleClickStage', (e) => {
 
-      console.log("REset & FIT*******************************")
-
-      console.log('cam1')
-      console.log(this.cam)
-
-      const args = [this.cam]
-      CommandExecutor('fitContent', args)
+      CommandExecutor('fit', [this.cam])
     });
 
   }
