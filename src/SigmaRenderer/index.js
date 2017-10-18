@@ -90,10 +90,10 @@ class SigmaRenderer extends Component {
       const nodeData = node.data
       const sigmaNode = {
         'id': nodeData.id,
-        'label': nodeData.name,
+        'label': nodeData.Label,
         'x': node.position.x,
         'y': node.position.y,
-        'size': nodeData.Size * 2,
+        'size': nodeData.Size * 1.2,
         type: 'def',
         props: nodeData,
         'color': this.styleUtil.getNodeColor(nodeData)
@@ -116,7 +116,7 @@ class SigmaRenderer extends Component {
         'source': ed.source,
         'target': ed.target,
         'size': 1,
-        type: 'thickLineGPU',
+        type: 'arrow',
         'color': this.styleUtil.getEdgeColor(ed.Data),
         'hover_color': this.styleUtil.getEdgeSelectedColor()
       }
@@ -186,7 +186,6 @@ class SigmaRenderer extends Component {
 
       this.props.eventHandlers.selectNodes([nodeId], nodeProps)
     })
-
 
 
       // this.s.bind('overEdge clickEdge', (e) => {
@@ -268,9 +267,9 @@ class SigmaRenderer extends Component {
 
     let j = edges.length
 
-    while(j--) {
-      edges[j].color = FADED_EDGE_COLOR
-    }
+    // while(j--) {
+    //   edges[j].color = FADED_EDGE_COLOR
+    // }
 
     // Highlight
     node.color = "#FF7700"

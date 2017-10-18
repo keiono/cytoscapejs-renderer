@@ -55,6 +55,7 @@ class CXStyleUtil {
 
   }
 
+
   parsePassthrough = passthroughDefinition => {
 
     const example = {
