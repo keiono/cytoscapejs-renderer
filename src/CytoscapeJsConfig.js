@@ -1,5 +1,5 @@
 // Original position will be used when layout is positions are available
-const DEF_LAYOUT = 'preset'
+const DEF_LAYOUT = 'grid'
 
 // Default background color
 const DEF_BG_COLOR = '#FFFFFF'

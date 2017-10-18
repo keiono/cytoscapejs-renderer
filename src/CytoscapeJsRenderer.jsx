@@ -45,10 +45,12 @@ class CytoscapeJsRenderer extends Component {
     cy.add(network.elements.nodes)
     cy.add(network.elements.edges)
 
-    const layout = this.props.rendererOptions.layout
-    if (layout !== undefined && layout !== null) {
-      this.applyLayout(layout)
-    }
+    console.log('++++++++++++++++++++++ LAYOUT')
+    this.applyLayout('concentric')
+    // const layout = this.props.rendererOptions.layout
+    // if (layout !== undefined && layout !== null) {
+    //   this.applyLayout(layout)
+    // }
     cy.fit()
     this.setEventListener(cy)
 
@@ -109,7 +111,8 @@ class CytoscapeJsRenderer extends Component {
       this.runCommand(command);
     }
 
-    // this.applyLayout(nextProps.rendererOptions.layout)
+    console.log("=========== Applying layout!");
+    this.applyLayout('concentric')
 
     // Check visual style
     const newVs = nextProps.networkStyle
@@ -132,8 +135,7 @@ class CytoscapeJsRenderer extends Component {
     }
 
     this.updateCyjs(nextProps.network)
-    // console.log("=========== Applying layout after!");
-    // this.applyLayout(nextProps.rendererOptions.layout)
+    // this.applyLayout('concentric')
 
     // const command = nextProps.command
     // if(command !== this.props.command) {
@@ -236,9 +238,12 @@ class CytoscapeJsRenderer extends Component {
     const cy = this.state.cyjs;
 
     if (layout !== undefined) {
-      cy.layout({
+      const layoutAlgorithm = cy.layout({
         name: layout
       })
+
+      layoutAlgorithm.run()
+
 
       this.setState({currentLayout: layout})
     }
