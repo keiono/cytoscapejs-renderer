@@ -149,6 +149,8 @@ class SigmaRenderer extends Component {
     const settings = DEFAULT_SETTINGS
 
 
+    this.addCustomMethods()
+
     // Create new instance of renderer with new camera
     this.s = new sigma({
       graph: graph,
@@ -172,6 +174,41 @@ class SigmaRenderer extends Component {
 
   }
 
+  addCustomMethods = () => {
+    sigma.classes.graph.addMethod('adjacentNodes', function(id) {
+      if (typeof id !== 'string')
+        throw 'adjacentNodes: the node id must be a string.';
+
+      console.log(this)
+      let target
+      const nodes = []
+
+      for(target in this.allNeighborsIndex[id]) {
+        nodes.push(this.nodesIndex[target]);
+      }
+      return nodes;
+    })
+
+    sigma.classes.graph.addMethod('adjacentEdges', function(id) {
+      if (typeof id !== 'string')
+        throw 'adjacentNodes: the node id must be a string.';
+
+
+      const connectingEdges = this.allNeighborsIndex[id]
+      const nodeIds = Object.keys(connectingEdges)
+
+      const edges = []
+      nodeIds.map(nodeId => {
+        const adjEdges = connectingEdges[nodeId]
+        const adjEdgeIds = Object.keys(adjEdges)
+
+        adjEdgeIds.forEach(edgeId => {
+          edges.push(adjEdges[edgeId])
+        })
+      })
+      return edges
+    })
+  }
 
   addEventHandlers = () => {
 
@@ -181,11 +218,51 @@ class SigmaRenderer extends Component {
       const nodeId = node.id
       const nodeProps = {}
 
+      console.log("NBR====")
+      console.log(this.s)
+      const neighbours = this.s.graph.adjacentNodes(nodeId)
+      console.log(neighbours)
+
+
+      const connectingEdges = this.s.graph.adjacentEdges(nodeId)
+      console.log("NBR2====")
+      console.log(connectingEdges)
+      connectingEdges.forEach(edge => {
+        if(edge.source === nodeId) {
+          // Out edge
+          edge.color = '#FF0000'
+          edge.size = 10
+        } else {
+          edge.color = '#00FFAA'
+        }
+      })
+
       this.nodeSelected(node)
       nodeProps[nodeId] = node
 
+      neighbours.forEach(node => {
+        const nodeData = node.props
+        console.log("NODE___________________")
+        console.log(node)
+        if(nodeData.NodeType === 'Gene') {
+          node.color = '#00FFaa'
+        } else {
+          node.color = '#FF0000'
+
+        }
+        node.size = node.size * 1.5
+      })
+      this.s.refresh()
+
       this.props.eventHandlers.selectNodes([nodeId], nodeProps)
     })
+
+    // this.cam.bind('coordinatesUpdated', e => {
+    //   console.log('CAMERA EVENT:')
+    //   console.log(e)
+    //
+    // })
+
 
 
       // this.s.bind('overEdge clickEdge', (e) => {
@@ -195,7 +272,7 @@ class SigmaRenderer extends Component {
       // });
 
 
-    this.s.bind('clickStage', (e) => {
+    this.s.bind('doubleClickStage', (e) => {
 
       console.log('RESET^^^^^^^^^^^^^^^')
       console.log(e.type, e.data.captor);
@@ -231,10 +308,10 @@ class SigmaRenderer extends Component {
 
     });
 
-    this.s.bind('doubleClickStage', (e) => {
-
-      CommandExecutor('fit', [this.cam])
-    });
+    // this.s.bind('doubleClickStage', (e) => {
+    //
+    //   CommandExecutor('fit', [this.cam])
+    // });
 
   }
 
@@ -335,7 +412,6 @@ class SigmaRenderer extends Component {
 
     this.setState({currentHiddenNodes: hiddenNodes})
 
-    this.s.refresh()
 
   }
 

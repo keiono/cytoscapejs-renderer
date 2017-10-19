@@ -18,7 +18,7 @@ export const DEFAULT_SETTINGS = {
   maxNodeSize: 25,
 
   minEdgeSize: 0.0001,
-  maxEdgeSize: 0.3,
+  maxEdgeSize: 0.9,
   enableEdgeHovering: false,
   edgeHoverColor: 'edge',
   defaultEdgeHoverColor: '#000',
