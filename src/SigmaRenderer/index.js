@@ -249,6 +249,10 @@ class SigmaRenderer extends Component {
 
       this.s.refresh()
 
+
+      // Move camera to node
+      CommandExecutor('zoomToNode', [this.cam, node, 0.01])
+
       this.props.eventHandlers.selectNodes([nodeId], nodeProps)
     })
 

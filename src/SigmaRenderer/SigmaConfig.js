@@ -9,14 +9,14 @@ export const DEFAULT_SETTINGS = {
   'mouseZoomDuration': 0,
   'mouseInertiaDuration': 0,
   doubleClickEnabled: false,
-  'labelThreshold': 4,
-  'labelSizeRatio': 2,
+  'labelThreshold': 7,
+  'labelSizeRatio': 2.5,
   'zoomingRatio': 1.1,
   'labelSize': 'propertional',
 
   'zoomMin': 0.0001,
-  minNodeSize: 0.5,
-  maxNodeSize: 20,
+  minNodeSize: 1,
+  maxNodeSize: 25,
 
   minEdgeSize: 0.001,
   maxEdgeSize: 0.3,
