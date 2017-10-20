@@ -1,24 +1,25 @@
 export const DEFAULT_SETTINGS = {
 
-  'defaultLabelColor': '#333333',
+  'defaultLabelColor': '#EFEFEF',
   'defaultNodeColor': '#777777',
-  'defaultEdgeColor': '#777777',
+  'defaultEdgeColor': '#aaaaaa',
   defaultHoverLabelBGColor: '#EEEEFF',
   'labelColor': 'default',
-  // 'edgeColor': 'source',
+  'edgeColor': 'default',
   'mouseZoomDuration': 0,
   'mouseInertiaDuration': 0,
   doubleClickEnabled: false,
-  'labelThreshold': 8,
+  'labelThreshold': 4,
+  'labelSizeRatio': 2,
   'zoomingRatio': 1.1,
-  'labelSizeRatio': 1.5,
   'labelSize': 'propertional',
 
-  'zoomMin': 0.001,
-  maxNodeSize: 25,
+  'zoomMin': 0.0001,
+  minNodeSize: 0.5,
+  maxNodeSize: 20,
 
-  minEdgeSize: 0.0001,
-  maxEdgeSize: 0.9,
+  minEdgeSize: 0.001,
+  maxEdgeSize: 0.3,
   enableEdgeHovering: false,
   edgeHoverColor: 'edge',
   defaultEdgeHoverColor: '#000',
@@ -31,4 +32,11 @@ export const RENDERER_TYPE = {
   CANVAS: 'canvas'
 }
 
-
+export const PRESET_COLORS = {
+  LIGHT: '#3FB4BD',
+  DARK: '#13363B',
+  SELECT: '#DF4240',
+  GRAY: '#EDEBED',
+  WHITE: '#FEFEFE',
+  BLACK: '#333333'
+}

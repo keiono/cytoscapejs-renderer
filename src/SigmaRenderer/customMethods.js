@@ -1,0 +1,40 @@
+import sigma from 'sigma'
+
+export const addCustomMethods = () => {
+  if(!sigma.classes.graph.hasMethod('adjacentNodes')) {
+    sigma.classes.graph.addMethod('adjacentNodes', function (id) {
+      if (typeof id !== 'string')
+        throw 'adjacentNodes: the node id must be a string.';
+
+      console.log(this)
+      let target
+      const nodes = []
+
+      for (target in this.allNeighborsIndex[id]) {
+        nodes.push(this.nodesIndex[target]);
+      }
+      return nodes;
+    })
+  }
+
+  if(!sigma.classes.graph.hasMethod('adjacentEdges')) {
+    sigma.classes.graph.addMethod('adjacentEdges', function (id) {
+      if (typeof id !== 'string')
+        throw 'adjacentNodes: the node id must be a string.'
+
+      const connectingEdges = this.allNeighborsIndex[id]
+      const nodeIds = Object.keys(connectingEdges)
+
+      const edges = []
+      nodeIds.map(nodeId => {
+        const adjEdges = connectingEdges[nodeId]
+        const adjEdgeIds = Object.keys(adjEdges)
+
+        adjEdgeIds.forEach(edgeId => {
+          edges.push(adjEdges[edgeId])
+        })
+      })
+      return edges
+    })
+  }
+}

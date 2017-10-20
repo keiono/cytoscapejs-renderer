@@ -1,23 +1,20 @@
 import React, {Component} from 'react'
 import sigma from 'sigma'
 import PropTypes from 'prop-types'
-import Immutable, {Map} from 'immutable'
 
-import {DEFAULT_SETTINGS, RENDERER_TYPE} from './SigmaConfig'
+import {DEFAULT_SETTINGS, RENDERER_TYPE, PRESET_COLORS} from './SigmaConfig'
 
 import CXStyleUtil from './CXStyleUtil'
 
 import {CustomShapes} from './plugins/sigma.renderers.customShapes'
 import {ShapeLibrary} from './plugins/shape-library'
 
-
+import {addCustomMethods} from './customMethods'
 import {CommandExecutor} from './CommandHandler'
 
 // Renderer types supported by Sigma.js
+const DEF_EDGE_WIDTH = 0.01
 
-
-const FADED_COLOR = '#aaaaaa'
-const FADED_EDGE_COLOR = '#EEEEEE'
 
 class SigmaRenderer extends Component {
 
@@ -28,9 +25,8 @@ class SigmaRenderer extends Component {
 
       'initialized': false,
       nodeColors: {},
-      edgeColors: {}
+      edgeColors: {},
     }
-
 
   }
 
@@ -45,16 +41,8 @@ class SigmaRenderer extends Component {
 
     const command = nextProps.command
     if (command !== this.props.command) {
-      this.runCommand(command);
+      CommandExecutor(command.command, [this.cam])
     }
-  }
-
-  runCommand = (command) => {
-
-    console.log('&&&& COMMAND EXECUTER')
-    console.log(command)
-    CommandExecutor(command.command, [this.cam])
-
   }
 
   componentDidMount () {
@@ -93,8 +81,7 @@ class SigmaRenderer extends Component {
         'label': nodeData.Label,
         'x': node.position.x,
         'y': node.position.y,
-        'size': nodeData.Size * 1.2,
-        type: 'def',
+        'size': nodeData.Size,
         props: nodeData,
         'color': this.styleUtil.getNodeColor(nodeData)
       }
@@ -115,10 +102,10 @@ class SigmaRenderer extends Component {
         'id': ed.id,
         'source': ed.source,
         'target': ed.target,
-        'size': 1,
+        'size': DEF_EDGE_WIDTH,
         type: 'arrow',
-        'color': this.styleUtil.getEdgeColor(ed.Data),
-        'hover_color': this.styleUtil.getEdgeSelectedColor()
+        // 'color': this.styleUtil.getEdgeColor(ed.Data),
+        // 'hover_color': this.styleUtil.getEdgeSelectedColor()
       }
 
       if(ed[this.props.edgeTypeTagName] !== 'Tree') {
@@ -149,7 +136,8 @@ class SigmaRenderer extends Component {
     const settings = DEFAULT_SETTINGS
 
 
-    this.addCustomMethods()
+    // Add custom methods for neighbours
+    addCustomMethods()
 
     // Create new instance of renderer with new camera
     this.s = new sigma({
@@ -174,66 +162,59 @@ class SigmaRenderer extends Component {
 
   }
 
-  addCustomMethods = () => {
-    sigma.classes.graph.addMethod('adjacentNodes', function(id) {
-      if (typeof id !== 'string')
-        throw 'adjacentNodes: the node id must be a string.';
-
-      console.log(this)
-      let target
-      const nodes = []
-
-      for(target in this.allNeighborsIndex[id]) {
-        nodes.push(this.nodesIndex[target]);
-      }
-      return nodes;
-    })
-
-    sigma.classes.graph.addMethod('adjacentEdges', function(id) {
-      if (typeof id !== 'string')
-        throw 'adjacentNodes: the node id must be a string.';
-
-
-      const connectingEdges = this.allNeighborsIndex[id]
-      const nodeIds = Object.keys(connectingEdges)
-
-      const edges = []
-      nodeIds.map(nodeId => {
-        const adjEdges = connectingEdges[nodeId]
-        const adjEdgeIds = Object.keys(adjEdges)
-
-        adjEdgeIds.forEach(edgeId => {
-          edges.push(adjEdges[edgeId])
-        })
-      })
-      return edges
-    })
-  }
 
   addEventHandlers = () => {
 
     this.s.bind('clickNode', e => {
 
+      this.resetView()
+
       const node = e.data.node
       const nodeId = node.id
       const nodeProps = {}
 
-      console.log("NBR====")
-      console.log(this.s)
+
       const neighbours = this.s.graph.adjacentNodes(nodeId)
       console.log(neighbours)
 
-
       const connectingEdges = this.s.graph.adjacentEdges(nodeId)
-      console.log("NBR2====")
       console.log(connectingEdges)
+
+      // Special case: Link node
+      if(connectingEdges !== undefined) {
+
+        const targetNodeId = connectingEdges[0].target
+        const targetNode = this.s.graph.nodes(targetNodeId)
+
+
+        if(targetNode.props.Label.startsWith('Hidden')) {
+          CommandExecutor('zoomToNode', [this.cam, node])
+          return
+        }
+
+      }
+
+      this.s.settings('labelColor', 'node');
+      this.s.settings('minEdgeSize', 0.1);
+      this.s.settings('maxEdgeSize', 1);
+
       connectingEdges.forEach(edge => {
+        const sourceId = edge.source
+        const sourceNode = this.s.graph.nodes(sourceId)
+
         if(edge.source === nodeId) {
           // Out edge
-          edge.color = '#FF0000'
+          edge.color = PRESET_COLORS.SELECT
           edge.size = 10
+        } else if (sourceNode.props.Label.startsWith('Hidden')) {
+          edge.color = PRESET_COLORS.BLACK
+          edge.size = 0.5
+        } else if (sourceNode.props.NodeType !== 'Gene') {
+          edge.color = PRESET_COLORS.SELECT
+          edge.size = 2
         } else {
-          edge.color = '#00FFAA'
+          edge.color = PRESET_COLORS.LIGHT
+          edge.size = 2
         }
       })
 
@@ -242,16 +223,30 @@ class SigmaRenderer extends Component {
 
       neighbours.forEach(node => {
         const nodeData = node.props
-        console.log("NODE___________________")
-        console.log(node)
         if(nodeData.NodeType === 'Gene') {
-          node.color = '#00FFaa'
-        } else {
-          node.color = '#FF0000'
+          node.color = PRESET_COLORS.LIGHT
+        } else if (nodeData.Label.startsWith('Hidden')) {
 
+          // This is a special case.
+          const linkNodes = this.s.graph.adjacentNodes(node.id)
+          linkNodes.forEach(linkNode => {
+            linkNode.color = PRESET_COLORS.BLACK
+          })
+          const linkEdges = this.s.graph.adjacentEdges(node.id)
+          linkEdges.forEach(linkEdge => {
+            linkEdge.color = PRESET_COLORS.BLACK
+            linkEdge.type = 'fast'
+          })
+
+          node.size = 0.1
+          node.color = PRESET_COLORS.BLACK
+        } else {
+          node.color = PRESET_COLORS.SELECT
         }
-        node.size = node.size * 1.5
       })
+
+      node.color = PRESET_COLORS.SELECT
+
       this.s.refresh()
 
       this.props.eventHandlers.selectNodes([nodeId], nodeProps)
@@ -263,19 +258,14 @@ class SigmaRenderer extends Component {
     //
     // })
 
-
-
-      // this.s.bind('overEdge clickEdge', (e) => {
-      //
-      //   console.log(e.type, e.data.edge, e.data.captor);
-      //
-      // });
-
-
     this.s.bind('doubleClickStage', (e) => {
 
       console.log('RESET^^^^^^^^^^^^^^^')
       console.log(e.type, e.data.captor);
+
+      this.s.settings('labelColor', 'node');
+      this.s.settings('minEdgeSize', 0.001);
+      this.s.settings('maxEdgeSize', 0.3);
 
       const nodes = this.s.graph.nodes()
       const edges = this.s.graph.edges()
@@ -288,8 +278,10 @@ class SigmaRenderer extends Component {
 
       let j = edges.length
 
+      // Reset edges
       while(j--) {
-        edges[j].color = '#777777'
+        edges[j].color = PRESET_COLORS.GRAY
+        edges[j].size = DEF_EDGE_WIDTH
       }
 
       this.resetNodePositions()
@@ -312,6 +304,27 @@ class SigmaRenderer extends Component {
     //
     //   CommandExecutor('fit', [this.cam])
     // });
+
+  }
+
+  resetView = () => {
+
+    const nodes = this.s.graph.nodes()
+    const edges = this.s.graph.edges()
+
+    let i = nodes.length
+    while(i--) {
+      const node = nodes[i]
+      node.color = this.colors[node.id]
+    }
+
+    let j = edges.length
+
+    // Reset edges
+    while(j--) {
+      edges[j].color = PRESET_COLORS.GRAY
+      edges[j].size = DEF_EDGE_WIDTH
+    }
 
   }
 
@@ -339,7 +352,7 @@ class SigmaRenderer extends Component {
     let i = nodes.length
 
     while(i--) {
-      nodes[i].color = FADED_COLOR
+      nodes[i].color = PRESET_COLORS.GRAY
     }
 
     let j = edges.length
@@ -349,7 +362,7 @@ class SigmaRenderer extends Component {
     // }
 
     // Highlight
-    node.color = "#FF7700"
+    node.color = PRESET_COLORS.SELECT
 
     const hidden = this.hiddenEdges[node.id]
 
@@ -478,9 +491,6 @@ SigmaRenderer.defaultProps = {
   }
 }
 
-const flipColor = nodes => {
-
-}
 
 const project = (x, y) => {
   const angle = (x - 90) / 180 * Math.PI
