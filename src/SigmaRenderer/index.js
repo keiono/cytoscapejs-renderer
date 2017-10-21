@@ -40,8 +40,19 @@ class SigmaRenderer extends Component {
   componentWillReceiveProps(nextProps) {
 
     const command = nextProps.command
+    console.log("@@ Command: ")
+    console.log(command)
+
     if (command !== this.props.command) {
-      CommandExecutor(command.command, [this.cam])
+      if(command.parameters === undefined || command.parameters === {}) {
+        CommandExecutor(command.command, [this.cam])
+      } else {
+        //TODO: generalize this!
+
+        const targetNode = this.s.graph.nodes(command.parameters)
+        console.log(targetNode)
+        CommandExecutor(command.command, [this.cam, targetNode])
+      }
     }
   }
 

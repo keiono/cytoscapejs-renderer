@@ -10,7 +10,7 @@ export const DEFAULT_SETTINGS = {
   'mouseInertiaDuration': 0,
   doubleClickEnabled: false,
   'labelThreshold': 7,
-  'labelSizeRatio': 2.5,
+  'labelSizeRatio': 2,
   'zoomingRatio': 1.1,
   'labelSize': 'propertional',
 
