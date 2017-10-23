@@ -51,7 +51,7 @@ class SigmaRenderer extends Component {
 
         const targetNode = this.s.graph.nodes(command.parameters)
         console.log(targetNode)
-        CommandExecutor(command.command, [this.cam, targetNode])
+        CommandExecutor(command.command, [this.cam, targetNode, 0.002])
       }
     }
   }
@@ -184,6 +184,7 @@ class SigmaRenderer extends Component {
       const nodeId = node.id
       const nodeProps = {}
 
+      nodeProps[nodeId] = node
 
       const neighbours = this.s.graph.adjacentNodes(nodeId)
       console.log(neighbours)
@@ -197,9 +198,8 @@ class SigmaRenderer extends Component {
         const targetNodeId = connectingEdges[0].target
         const targetNode = this.s.graph.nodes(targetNodeId)
 
-
         if(targetNode.props.Label.startsWith('Hidden')) {
-          CommandExecutor('zoomToNode', [this.cam, node])
+          this.props.eventHandlers.selectNodes([nodeId], nodeProps)
           return
         }
 
@@ -230,7 +230,6 @@ class SigmaRenderer extends Component {
       })
 
       this.nodeSelected(node)
-      nodeProps[nodeId] = node
 
       neighbours.forEach(node => {
         const nodeData = node.props
