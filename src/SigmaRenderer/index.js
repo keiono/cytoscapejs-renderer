@@ -89,7 +89,7 @@ class SigmaRenderer extends Component {
       const nodeData = node.data
       const sigmaNode = {
         'id': nodeData.id,
-        'label': nodeData.Label,
+        'label': (nodeData.isRoot) ? 'ROOT' : nodeData.Label,
         'x': node.position.x,
         'y': node.position.y,
         'size': nodeData.Size,
