@@ -51,7 +51,7 @@ class SigmaRenderer extends Component {
 
         const targetNode = this.s.graph.nodes(command.parameters)
         console.log(targetNode)
-        CommandExecutor(command.command, [this.cam, targetNode, 0.002])
+        CommandExecutor(command.command, [this.cam, targetNode, 0.03])
       }
     }
   }
@@ -261,7 +261,7 @@ class SigmaRenderer extends Component {
 
 
       // Move camera to node
-      CommandExecutor('zoomToNode', [this.cam, node, 0.01])
+      CommandExecutor('zoomToNode', [this.cam, node, 0.02])
 
       this.props.eventHandlers.selectNodes([nodeId], nodeProps)
     })
