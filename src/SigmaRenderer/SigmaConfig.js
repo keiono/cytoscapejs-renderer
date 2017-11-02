@@ -2,20 +2,20 @@ export const DEFAULT_SETTINGS = {
 
   'defaultLabelColor': '#EFEFEF',
   'defaultNodeColor': '#777777',
-  'defaultEdgeColor': '#aaaaaa',
+  'defaultEdgeColor': '#707070',
   defaultHoverLabelBGColor: '#EEEEFF',
   'labelColor': 'default',
   'edgeColor': 'default',
   'mouseZoomDuration': 0,
   'mouseInertiaDuration': 0,
   doubleClickEnabled: false,
-  'labelThreshold': 5,
+  'labelThreshold': 10,
   'labelSizeRatio': 1.4,
   'zoomingRatio': 1.12,
   'labelSize': 'propertional',
 
   'zoomMin': 0.0001,
-  minNodeSize: 3,
+  minNodeSize: 0.1,
   maxNodeSize: 15,
 
   minEdgeSize: 0.001,

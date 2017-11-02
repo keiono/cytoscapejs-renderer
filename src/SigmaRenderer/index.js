@@ -27,6 +27,9 @@ class SigmaRenderer extends Component {
       nodeColors: {},
       edgeColors: {},
     }
+    this.lastZoomLevel = 10
+
+    this.flip = false
 
   }
 
@@ -157,9 +160,50 @@ class SigmaRenderer extends Component {
     })
     this.cam = this.s.addCamera({isAnimated: true});
 
-    this.cam.bind('coordinatesUpdated', () => {
-      console.log(this.cam.quadtree._cache.result)
-    });
+    // this.cam.bind('coordinatesUpdated', () => {
+    //   const viewportSize = this.cam.quadtree._cache.result.length
+    //
+    //   const th = this.s.graph.nodes().length * 0.2
+    //   const th2 = this.s.graph.nodes().length * 0.9
+    //   const ratio  = this.cam.ratio
+    //   console.log(ratio)
+    //   console.log(viewportSize)
+    //   console.log(th)
+    //   const lastZoom = this.lastZoomLevel
+    //
+    //
+    //   if(viewportSize <= th) {
+    //     this.s.settings('minNodeSize', 0.8);
+    //     this.s.settings('maxNodeSize', 15);
+    //     // this.s.settings('minEdgeSize', 0.001);
+    //     // this.s.settings('maxEdgeSize', 0.1);
+    //     this.s.settings('labelThreshold', 4);
+    //     this.s.settings('labelSizeRatio', 1.5)
+    //     this.lastZoonLevel = ratio
+    //
+    //     if(!this.flip) {
+    //       this.s.refresh()
+    //       this.flip = true
+    //       console.log("refresh zoom in refresh")
+    //     }
+    //   } else if(viewportSize > th && viewportSize <= th2) {
+    //     this.s.settings('minNodeSize', 0);
+    //     this.s.settings('maxNodeSize', 15);
+    //     this.s.settings('labelThreshold', 10);
+    //     this.s.settings('labelSizeRatio', 1.4)
+    //     this.lastZoonLevel = ratio
+    //     if(this.flip) {
+    //       this.s.refresh()
+    //       this.flip = false
+    //       console.log("refresh out zoom in refresh")
+    //     }
+    //   } else if(viewportSize > th2) {
+    //
+    //     this.s.settings('labelThreshold', 20);
+    //     this.s.refresh()
+    //   }
+    //
+    // });
 
     this.addEventHandlers()
 
