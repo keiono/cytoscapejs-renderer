@@ -157,6 +157,10 @@ class SigmaRenderer extends Component {
     })
     this.cam = this.s.addCamera({isAnimated: true});
 
+    this.cam.bind('coordinatesUpdated', () => {
+      console.log(this.cam.quadtree._cache.result)
+    });
+
     this.addEventHandlers()
 
     this.colors = colors
