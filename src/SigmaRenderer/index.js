@@ -2,12 +2,15 @@ import React, {Component} from 'react'
 import sigma from 'sigma'
 import PropTypes from 'prop-types'
 
-import {DEFAULT_SETTINGS, RENDERER_TYPE, PRESET_COLORS} from './SigmaConfig'
+import {
+  DEFAULT_SETTINGS,
+  RENDERER_TYPE,
+  PRESET_COLORS,
+  PRESET_GRAPH_SIZE,
+  SIZE_SENSITIVE_RENDERING_OPT
+} from './SigmaConfig'
 
 import CXStyleUtil from './CXStyleUtil'
-
-import {CustomShapes} from './plugins/sigma.renderers.customShapes'
-import {ShapeLibrary} from './plugins/shape-library'
 
 import {addCustomMethods} from './customMethods'
 import {CommandExecutor} from './CommandHandler'
@@ -22,20 +25,15 @@ class SigmaRenderer extends Component {
     super(props, context)
 
     this.state = {
-
-      'initialized': false,
       nodeColors: {},
       edgeColors: {},
+      flip: false
     }
-    this.lastZoomLevel = 10
-
-    this.flip = false
-
   }
 
 
+  // Update is controlled by componentWillReceiveProps()
   shouldComponentUpdate(nextProps, nextState) {
-    // Update is controlled by componentWillReceiveProps()
     return false
   }
 
@@ -43,15 +41,11 @@ class SigmaRenderer extends Component {
   componentWillReceiveProps(nextProps) {
 
     const command = nextProps.command
-    console.log("@@ Command: ")
-    console.log(command)
-
     if (command !== this.props.command) {
       if(command.parameters === undefined || command.parameters === {}) {
         CommandExecutor(command.command, [this.cam])
       } else {
         //TODO: generalize this!
-
         const targetNode = this.s.graph.nodes(command.parameters)
         console.log(targetNode)
         CommandExecutor(command.command, [this.cam, targetNode, 0.03])
@@ -59,24 +53,10 @@ class SigmaRenderer extends Component {
     }
   }
 
-  componentDidMount () {
-
-    const cxData = this.props.network.cxData
-    let cyVS = null
-    if(cxData !== undefined) {
-      cyVS = cxData.cyVisualProperties
-    }
-
-    if(cyVS !== null) {
-      this.styleUtil = new CXStyleUtil(this.props.network, cyVS)
-
-    } else {
-      this.styleUtil = new CXStyleUtil(this.props.network)
-
-    }
-
-    const nodes = this.props.network.elements.nodes
-    const edges = this.props.network.elements.edges
+  buildNetworkView = () => {
+    const elements = this.props.network.elements
+    const nodes = elements.nodes
+    const edges = elements.edges
 
     const graph = {
       nodes: [],
@@ -91,23 +71,26 @@ class SigmaRenderer extends Component {
       const node = nodes[i]
       const nodeData = node.data
       const sigmaNode = {
-        'id': nodeData.id,
-        'label': (nodeData.isRoot) ? 'ROOT' : nodeData.Label,
-        'x': node.position.x,
-        'y': node.position.y,
-        'size': nodeData.Size,
+        id: nodeData.id,
+        label: (nodeData.isRoot) ? 'ROOT' : nodeData.Label,
+        x: node.position.x,
+        y: node.position.y,
+        size: nodeData.Size,
         props: nodeData,
-        'color': this.styleUtil.getNodeColor(nodeData)
+        color: this.styleUtil.getNodeColor(nodeData)
       }
 
       graph.nodes.push(sigmaNode)
 
+      if(sigmaNode.color === '#FFFFFF') {
+        sigmaNode.color = '#EEEEEE'
+      }
+
       colors[nodeData.id] = sigmaNode.color
     }
+    this.colors = colors
 
-    const hiddenEdges = {
-
-    }
+    const hiddenEdges = {}
 
     edges.forEach((edge) => {
 
@@ -118,7 +101,7 @@ class SigmaRenderer extends Component {
         'target': ed.target,
         'size': DEF_EDGE_WIDTH,
         type: 'arrow',
-        // 'color': this.styleUtil.getEdgeColor(ed.Data),
+        // 'color': '#666666'
         // 'hover_color': this.styleUtil.getEdgeSelectedColor()
       }
 
@@ -147,8 +130,26 @@ class SigmaRenderer extends Component {
 
     this.hiddenEdges = hiddenEdges
 
-    const settings = DEFAULT_SETTINGS
+    return graph
+  }
 
+  componentDidMount () {
+
+    const cxData = this.props.network.cxData
+    let cyVS = null
+    if(cxData !== undefined) {
+      cyVS = cxData.cyVisualProperties
+    }
+
+    if(cyVS !== null) {
+      this.styleUtil = new CXStyleUtil(this.props.network, cyVS)
+    } else {
+      this.styleUtil = new CXStyleUtil(this.props.network)
+
+    }
+
+    const graph = this.buildNetworkView()
+    const settings = DEFAULT_SETTINGS
 
     // Add custom methods for neighbours
     addCustomMethods()
@@ -160,64 +161,81 @@ class SigmaRenderer extends Component {
     })
     this.cam = this.s.addCamera({isAnimated: true});
 
-    // this.cam.bind('coordinatesUpdated', () => {
-    //   const viewportSize = this.cam.quadtree._cache.result.length
-    //
-    //   const th = this.s.graph.nodes().length * 0.2
-    //   const th2 = this.s.graph.nodes().length * 0.9
-    //   const ratio  = this.cam.ratio
-    //   console.log(ratio)
-    //   console.log(viewportSize)
-    //   console.log(th)
-    //   const lastZoom = this.lastZoomLevel
-    //
-    //
-    //   if(viewportSize <= th) {
-    //     this.s.settings('minNodeSize', 0.8);
-    //     this.s.settings('maxNodeSize', 15);
-    //     // this.s.settings('minEdgeSize', 0.001);
-    //     // this.s.settings('maxEdgeSize', 0.1);
-    //     this.s.settings('labelThreshold', 4);
-    //     this.s.settings('labelSizeRatio', 1.5)
-    //     this.lastZoonLevel = ratio
-    //
-    //     if(!this.flip) {
-    //       this.s.refresh()
-    //       this.flip = true
-    //       console.log("refresh zoom in refresh")
-    //     }
-    //   } else if(viewportSize > th && viewportSize <= th2) {
-    //     this.s.settings('minNodeSize', 0);
-    //     this.s.settings('maxNodeSize', 15);
-    //     this.s.settings('labelThreshold', 10);
-    //     this.s.settings('labelSizeRatio', 1.4)
-    //     this.lastZoonLevel = ratio
-    //     if(this.flip) {
-    //       this.s.refresh()
-    //       this.flip = false
-    //       console.log("refresh out zoom in refresh")
-    //     }
-    //   } else if(viewportSize > th2) {
-    //
-    //     this.s.settings('labelThreshold', 20);
-    //     this.s.refresh()
-    //   }
-    //
-    // });
+    const numNodes = this.s.graph.nodes().length
+
+    console.log("***************NODES = " + numNodes)
+    if(numNodes < PRESET_GRAPH_SIZE.SMALL) {
+      this.setRenderingOptions(SIZE_SENSITIVE_RENDERING_OPT.SMALL)
+    } else {
+      this.setRenderingOptions(SIZE_SENSITIVE_RENDERING_OPT.LARGE)
+      this.bindCameraEventHandler(numNodes)
+    }
 
     this.addEventHandlers()
 
-    this.colors = colors
 
+    if(numNodes < PRESET_GRAPH_SIZE.SMALL) {
+      this.s.addRenderer({
+        'container': this.sigmaView,
+        'type': RENDERER_TYPE.CANVAS,
+        'camera': this.cam
+      })
+    } else {
+      this.s.addRenderer({
+        'container': this.sigmaView,
+        'type': RENDERER_TYPE.WEBGL,
+        'camera': this.cam
+      })
 
-    this.s.addRenderer({
-      'container': this.sigmaView,
-      'type': RENDERER_TYPE.WEBGL,
-      'camera': this.cam
-    });
+    }
 
     // CustomShapes.init(this.s)
     this.s.refresh()
+
+  }
+
+  setRenderingOptions(opts) {
+    const optKeys = Object.keys(opts)
+    optKeys.forEach(key => {
+      this.s.settings(key, opts[key])
+    })
+  }
+
+  bindCameraEventHandler = (numNodes) => {
+    this.setState({th: numNodes * 0.15})
+    this.setState({th2: numNodes * 0.9})
+
+
+    this.cam.bind('coordinatesUpdated', () => {
+
+      // Rough estimate for number of nodes in current view
+      const viewportSize = this.cam.quadtree._cache.result.length
+
+
+      if (viewportSize <= this.state.th) {
+        if (!this.flip) {
+          this.s.settings('minNodeSize', 0.5);
+          this.s.settings('maxNodeSize', 20);
+          this.s.settings('labelThreshold', 2);
+          this.s.settings('labelSizeRatio', 3)
+
+          this.s.refresh()
+          this.flip = true
+          console.log("refresh zoom in refresh")
+        }
+      } else if (viewportSize > this.state.th && viewportSize <= this.state.th2) {
+        if (this.flip) {
+          this.s.settings('minNodeSize', 0.1);
+          this.s.settings('maxNodeSize', 20);
+          this.s.settings('labelThreshold', 5);
+          this.s.settings('labelSizeRatio', 1.4)
+          // this.lastZoonLevel = ratio
+          this.s.refresh()
+          this.flip = false
+          console.log("refresh out zoom in refresh")
+        }
+      }
+    });
 
   }
 
@@ -226,7 +244,7 @@ class SigmaRenderer extends Component {
 
     this.s.bind('clickNode', e => {
 
-      this.resetView()
+      // this.resetView()
 
       const node = e.data.node
       const nodeId = node.id
@@ -314,16 +332,10 @@ class SigmaRenderer extends Component {
       this.props.eventHandlers.selectNodes([nodeId], nodeProps)
     })
 
-    // this.cam.bind('coordinatesUpdated', e => {
-    //   console.log('CAMERA EVENT:')
-    //   console.log(e)
-    //
-    // })
 
     this.s.bind('doubleClickStage', (e) => {
 
       console.log('RESET^^^^^^^^^^^^^^^')
-      console.log(e.type, e.data.captor);
 
       this.s.settings('labelColor', 'node');
       this.s.settings('minEdgeSize', 0.001);
@@ -357,15 +369,8 @@ class SigmaRenderer extends Component {
       }
 
       this.setState({currentHiddenEdges: undefined})
-
       this.s.refresh()
-
     });
-
-    // this.s.bind('doubleClickStage', (e) => {
-    //
-    //   CommandExecutor('fit', [this.cam])
-    // });
 
   }
 
@@ -391,10 +396,6 @@ class SigmaRenderer extends Component {
   }
 
   nodeSelected = node => {
-
-    console.log('2 Selected: ')
-    console.log(node)
-    console.log(this.hiddenEdges[node.id])
 
     const currentHidden = this.state.currentHiddenEdges
 

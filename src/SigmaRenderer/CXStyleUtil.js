@@ -38,8 +38,7 @@ class CXStyleUtil {
     if(this.nodeColorPt !== undefined) {
       return this.getPassthroughValue(nodeData)
     } else {
-      return '#555555'
-      // return this._style.nodeDefaults['NODE_FILL_COLOR']
+      return this._style.nodeDefaults['NODE_FILL_COLOR']
     }
   }
 
