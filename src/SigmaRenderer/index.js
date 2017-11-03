@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
-import sigma from 'sigma'
 import PropTypes from 'prop-types'
+
+import sigma from 'sigma'
 
 import {
   DEFAULT_SETTINGS,
@@ -32,12 +33,19 @@ class SigmaRenderer extends Component {
   }
 
 
-  // Update is controlled by componentWillReceiveProps()
+  /**
+   * Update is always controlled by componentWillReceiveProps(),
+   * so base tag never been updated
+   */
   shouldComponentUpdate(nextProps, nextState) {
     return false
   }
 
 
+  /**
+   * Commands will be executed through this mechanism.
+   * All others will be updated by event handlers
+   */
   componentWillReceiveProps(nextProps) {
 
     const command = nextProps.command
@@ -53,18 +61,22 @@ class SigmaRenderer extends Component {
     }
   }
 
+
   buildNetworkView = () => {
+
     const elements = this.props.network.elements
-    const nodes = elements.nodes
-    const edges = elements.edges
+    const graph = {}
 
-    const graph = {
-      nodes: [],
-      edges: []
-    }
+    graph['nodes'] = this.getSigmaNodes(elements.nodes)
+    graph['edges'] = this.getSigmaEdges(elements.edges)
 
+    return graph
+  }
+
+  getSigmaNodes = nodes => {
     const nodesLen = nodes.length
     const colors = {}
+    const sigmaNodes = []
 
     let i = nodesLen
     while(i--) {
@@ -80,17 +92,24 @@ class SigmaRenderer extends Component {
         color: this.styleUtil.getNodeColor(nodeData)
       }
 
-      graph.nodes.push(sigmaNode)
+      sigmaNodes.push(sigmaNode)
 
       if(sigmaNode.color === '#FFFFFF') {
-        sigmaNode.color = '#EEEEEE'
+        sigmaNode.color = '#aaaaaa'
       }
 
       colors[nodeData.id] = sigmaNode.color
     }
-    this.colors = colors
 
+    // Store original colors as state
+    this.setState({nodeColors: colors})
+
+    return sigmaNodes
+  }
+
+  getSigmaEdges = edges => {
     const hiddenEdges = {}
+    const sigmaEdges = []
 
     edges.forEach((edge) => {
 
@@ -101,7 +120,7 @@ class SigmaRenderer extends Component {
         'target': ed.target,
         'size': DEF_EDGE_WIDTH,
         type: 'arrow',
-        // 'color': '#666666'
+        color: PRESET_COLORS.GRAY
         // 'hover_color': this.styleUtil.getEdgeSelectedColor()
       }
 
@@ -123,15 +142,16 @@ class SigmaRenderer extends Component {
           target.push(newEdge)
         }
       } else {
-        graph.edges.push(newEdge)
+        sigmaEdges.push(newEdge)
       }
 
     })
 
     this.hiddenEdges = hiddenEdges
 
-    return graph
+    return sigmaEdges
   }
+
 
   componentDidMount () {
 
@@ -242,9 +262,10 @@ class SigmaRenderer extends Component {
 
   addEventHandlers = () => {
 
+
     this.s.bind('clickNode', e => {
 
-      // this.resetView()
+      this.resetView()
 
       const node = e.data.node
       const nodeId = node.id
@@ -335,29 +356,12 @@ class SigmaRenderer extends Component {
 
     this.s.bind('doubleClickStage', (e) => {
 
-      console.log('RESET^^^^^^^^^^^^^^^')
-
-      this.s.settings('labelColor', 'node');
+      this.s.settings('labelColor', 'default')
       this.s.settings('minEdgeSize', 0.001);
       this.s.settings('maxEdgeSize', 0.3);
 
-      const nodes = this.s.graph.nodes()
-      const edges = this.s.graph.edges()
 
-      let i = nodes.length
-      while(i--) {
-        const node = nodes[i]
-        node.color = this.colors[node.id]
-      }
-
-      let j = edges.length
-
-      // Reset edges
-      while(j--) {
-        edges[j].color = PRESET_COLORS.GRAY
-        edges[j].size = DEF_EDGE_WIDTH
-      }
-
+      this.resetView()
       this.resetNodePositions()
 
       const currentHidden = this.state.currentHiddenEdges
@@ -374,20 +378,21 @@ class SigmaRenderer extends Component {
 
   }
 
+
   resetView = () => {
 
+    // Get sigma nodes and edges
     const nodes = this.s.graph.nodes()
     const edges = this.s.graph.edges()
 
+    // This loop is for performance
     let i = nodes.length
     while(i--) {
       const node = nodes[i]
-      node.color = this.colors[node.id]
+      node.color = this.state.nodeColors[node.id]
     }
 
     let j = edges.length
-
-    // Reset edges
     while(j--) {
       edges[j].color = PRESET_COLORS.GRAY
       edges[j].size = DEF_EDGE_WIDTH
