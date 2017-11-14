@@ -1,7 +1,13 @@
 import React, {Component} from 'react'
 import cytoscape from 'cytoscape'
+import regCose from 'cytoscape-cose-bilkent'
+
+
 import * as config from './CytoscapeJsConfig'
 
+// Register optional layout plugin
+
+regCose(cytoscape)
 
 /**
  * Renderer using Cytoscape.js
@@ -45,12 +51,16 @@ class CytoscapeJsRenderer extends Component {
     cy.add(network.elements.nodes)
     cy.add(network.elements.edges)
 
-    console.log('++++++++++++++++++++++ LAYOUT')
-    this.applyLayout('concentric')
-    // const layout = this.props.rendererOptions.layout
-    // if (layout !== undefined && layout !== null) {
-    //   this.applyLayout(layout)
-    // }
+    const layout = this.props.rendererOptions.layout
+    console.log('++++++++++++++++++++++ LAYOUT: ' + layout)
+
+    if (layout !== undefined && layout !== null) {
+      this.applyLayout(layout)
+    } else {
+      this.applyLayout('cose')
+    }
+
+
     cy.fit()
     this.setEventListener(cy)
 
@@ -111,8 +121,8 @@ class CytoscapeJsRenderer extends Component {
       this.runCommand(command);
     }
 
-    console.log("=========== Applying layout!");
-    this.applyLayout('concentric')
+    // console.log("=========== Applying layout!");
+    // this.applyLayout('concentric')
 
     // Check visual style
     const newVs = nextProps.networkStyle
@@ -238,9 +248,26 @@ class CytoscapeJsRenderer extends Component {
     const cy = this.state.cyjs;
 
     if (layout !== undefined) {
-      const layoutAlgorithm = cy.layout({
-        name: layout
-      })
+
+      let layoutAlgorithm = null;
+
+      if(layout === 'cose-bilkent') {
+        const layoutOptions = {
+          name: 'cose-bilkent',
+          animate: 'end',
+          nodeDimensionsIncludeLabels: true,
+          animationEasing: 'ease-out',
+          animationDuration: 2000,
+          randomize: true,
+          idealEdgeLength: 220
+        }
+        layoutAlgorithm = cy.layout(layoutOptions)
+      } else {
+        layoutAlgorithm = cy.layout({
+          name: layout
+        })
+      }
+
 
       layoutAlgorithm.run()
 

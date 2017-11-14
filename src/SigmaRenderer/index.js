@@ -55,7 +55,6 @@ class SigmaRenderer extends Component {
       } else {
         //TODO: generalize this!
         const targetNode = this.s.graph.nodes(command.parameters)
-        console.log(targetNode)
         CommandExecutor(command.command, [this.cam, targetNode, 0.03])
       }
     }
@@ -183,7 +182,6 @@ class SigmaRenderer extends Component {
 
     const numNodes = this.s.graph.nodes().length
 
-    console.log("***************NODES = " + numNodes)
     if(numNodes < PRESET_GRAPH_SIZE.SMALL) {
       this.setRenderingOptions(SIZE_SENSITIVE_RENDERING_OPT.SMALL)
     } else {
@@ -348,7 +346,7 @@ class SigmaRenderer extends Component {
 
 
       // Move camera to node
-      CommandExecutor('zoomToNode', [this.cam, node, 0.02])
+      // CommandExecutor('zoomToNode', [this.cam, node, 0.02])
 
       this.props.eventHandlers.selectNodes([nodeId], nodeProps)
     })

@@ -2,7 +2,7 @@ export const DEFAULT_SETTINGS = {
 
   'defaultLabelColor': '#333333',
   'defaultNodeColor': '#bbbbbb',
-  'defaultEdgeColor': '#aaaaaa',
+  'defaultEdgeColor': '#777777',
   defaultHoverLabelBGColor: '#EEEEFF',
   'labelColor': 'default',
   'edgeColor': 'default',
@@ -37,7 +37,7 @@ export const PRESET_COLORS = {
   LIGHT: '#3FB4BD',
   DARK: '#13363B',
   SELECT: '#DF4240',
-  GRAY: '#EDEBED',
+  GRAY: '#ADABAD',
   WHITE: '#FEFEFE',
   BLACK: '#333333'
 }
