@@ -126,13 +126,21 @@ class CytoscapeJsRenderer extends Component {
 
     // Check visual style
     const newVs = nextProps.networkStyle
+    const currentVs = this.props.networkStyle
 
-    if (newVs !== undefined || newVS !== null) {
-      const name = this.props.networkStyle.name
-      const newName = newVs.name
+    console.log(newVs)
+    console.log(currentVs)
 
-      if (name !== newName) {
+    if (newVs !== undefined && newVs !== null) {
+      if(currentVs === null || currentVs === undefined) {
         this.state.cyjs.style(newVs.style)
+      } else {
+        const name = currentVs.name
+        const newName = newVs.name
+        if (name !== newName) {
+          this.state.cyjs.style(newVs.style)
+        }
+
       }
     }
 
