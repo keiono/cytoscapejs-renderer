@@ -52,7 +52,6 @@ class CytoscapeJsRenderer extends Component {
     cy.add(network.elements.edges)
 
     const layout = this.props.rendererOptions.layout
-    console.log('++++++++++++++++++++++ LAYOUT: ' + layout)
 
     if (layout !== undefined && layout !== null) {
       this.applyLayout(layout)
@@ -127,9 +126,6 @@ class CytoscapeJsRenderer extends Component {
     // Check visual style
     const newVs = nextProps.networkStyle
     const currentVs = this.props.networkStyle
-
-    console.log(newVs)
-    console.log(currentVs)
 
     if (newVs !== undefined && newVs !== null) {
       if(currentVs === null || currentVs === undefined) {

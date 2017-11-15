@@ -55,7 +55,7 @@ export const SIZE_SENSITIVE_RENDERING_OPT = {
     maxNodeSize: 30,
     labelThreshold: 4,
     labelSizeRatio: 1,
-    nodesPowRatio: 1
+    nodesPowRatio: 0.3
   },
   MEDIUM: {
 
