@@ -203,7 +203,6 @@ class CytoscapeJsRenderer extends Component {
 
       let selected = idList.map(id => (id.replace(/\:/, '\\:')))
       selected = selected.map(id => ('#' + id))
-      console.log(selected)
 
       const strVal = selected.toString()
       const target = cy.elements(strVal)
@@ -212,7 +211,21 @@ class CytoscapeJsRenderer extends Component {
       target.removeClass('faded')
 
       target.select()
-      // cy.fit(target, 500)
+      if(commandParams.selectedColor !== undefined) {
+        target.style({
+          'background-color': commandParams.selectedColor
+        })
+      }
+    } else if (commandName === 'unselect') {
+      const idList = commandParams.idList
+
+      let selected = idList.map(id => (id.replace(/\:/, '\\:')))
+      selected = selected.map(id => ('#' + id))
+
+      const strVal = selected.toString()
+      const target = cy.elements(strVal)
+
+      target.unselect()
     } else if (commandName === 'focus') {
 
       const idList = commandParams.idList
@@ -261,9 +274,9 @@ class CytoscapeJsRenderer extends Component {
           animate: 'end',
           nodeDimensionsIncludeLabels: true,
           animationEasing: 'ease-out',
-          animationDuration: 2000,
+          animationDuration: 1500,
           randomize: true,
-          idealEdgeLength: 220
+          idealEdgeLength: 280
         }
         layoutAlgorithm = cy.layout(layoutOptions)
       } else {
