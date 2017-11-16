@@ -51,11 +51,13 @@ export const PRESET_GRAPH_SIZE = {
 
 export const SIZE_SENSITIVE_RENDERING_OPT = {
   SMALL: {
-    minNodeSize: 1,
-    maxNodeSize: 30,
+    minNodeSize: 3,
+    maxNodeSize: 20,
+    minEdgeSize: 0.1,
+    maxEdgeSize: 1,
     labelThreshold: 4,
     labelSizeRatio: 1,
-    nodesPowRatio: 0.3
+    nodesPowRatio: 0.8
   },
   MEDIUM: {
 

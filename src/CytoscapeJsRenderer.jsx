@@ -245,10 +245,12 @@ class CytoscapeJsRenderer extends Component {
       const options = commandParams.options
       const filterType = options.type
 
+      console.log("FILTER called")
       if (filterType === 'numeric') {
         const range = options.range
         const toBeShown = cy.elements(range)
 
+        console.log(toBeShown)
         cy.edges().addClass('dark')
         toBeShown.removeClass('dark')
       }
