@@ -226,6 +226,8 @@ class CytoscapeJsRenderer extends Component {
       const target = cy.elements(strVal)
 
       target.unselect()
+      // target.flashClass()
+
     } else if (commandName === 'focus') {
 
       const idList = commandParams.idList
@@ -245,14 +247,11 @@ class CytoscapeJsRenderer extends Component {
       const options = commandParams.options
       const filterType = options.type
 
-      console.log("FILTER called")
       if (filterType === 'numeric') {
         const range = options.range
         const toBeShown = cy.elements(range)
-
-        console.log(toBeShown)
-        cy.edges().addClass('dark')
-        toBeShown.removeClass('dark')
+        cy.edges().addClass('hidden')
+        toBeShown.removeClass('hidden')
       }
     }
 
@@ -278,7 +277,7 @@ class CytoscapeJsRenderer extends Component {
           animationEasing: 'ease-out',
           animationDuration: 1500,
           randomize: true,
-          idealEdgeLength: 280
+          idealEdgeLength: 300
         }
         layoutAlgorithm = cy.layout(layoutOptions)
       } else {
@@ -302,10 +301,6 @@ class CytoscapeJsRenderer extends Component {
 
 
   cyEventHandler = event => {
-    console.log("########################## CY EVENT")
-    console.log(event)
-
-
     this.state.cyjs.off(config.SUPPORTED_EVENTS)
 
     const cy = this.state.cyjs
