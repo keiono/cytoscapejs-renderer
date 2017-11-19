@@ -120,9 +120,6 @@ class CytoscapeJsRenderer extends Component {
       this.runCommand(command);
     }
 
-    // console.log("=========== Applying layout!");
-    // this.applyLayout('concentric')
-
     // Check visual style
     const newVs = nextProps.networkStyle
     const currentVs = this.props.networkStyle
@@ -149,7 +146,6 @@ class CytoscapeJsRenderer extends Component {
     }
 
     this.updateCyjs(nextProps.network)
-    // this.applyLayout('concentric')
 
     // const command = nextProps.command
     // if(command !== this.props.command) {
@@ -207,8 +203,8 @@ class CytoscapeJsRenderer extends Component {
       const strVal = selected.toString()
       const target = cy.elements(strVal)
 
-      cy.elements().addClass('faded')
-      target.removeClass('faded')
+      // cy.elements().addClass('faded')
+      // target.removeClass('faded')
 
       target.select()
       if(commandParams.selectedColor !== undefined) {
@@ -223,10 +219,10 @@ class CytoscapeJsRenderer extends Component {
       selected = selected.map(id => ('#' + id))
 
       const strVal = selected.toString()
-      const target = cy.elements(strVal)
 
+      const target = cy.elements(strVal)
       target.unselect()
-      // target.flashClass()
+      target.removeStyle()
 
     } else if (commandName === 'focus') {
 
@@ -248,11 +244,31 @@ class CytoscapeJsRenderer extends Component {
       const filterType = options.type
 
       if (filterType === 'numeric') {
+
+        cy.startBatch()
+
+
+        const hiddenEdges = this.state.hiddenEdges
+
+        if(hiddenEdges !== undefined) {
+          hiddenEdges.restore()
+        }
+
         const range = options.range
         const toBeShown = cy.elements(range)
-        cy.edges().addClass('hidden')
-        toBeShown.removeClass('hidden')
+        const removed = cy.edges().remove()
+        this.setState({
+          hiddenEdges: removed
+        })
+        toBeShown.restore()
+
+        cy.endBatch()
+
       }
+    } else if (commandName === 'layout') {
+      const name = commandParams.name
+
+      this.applyLayout(name)
     }
 
     // Callback
@@ -287,10 +303,10 @@ class CytoscapeJsRenderer extends Component {
       }
 
 
-      layoutAlgorithm.run()
-
-
-      this.setState({currentLayout: layout})
+      if(layoutAlgorithm !== undefined) {
+        layoutAlgorithm.run()
+        this.setState({currentLayout: layout})
+      }
     }
   }
 
