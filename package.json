@@ -35,7 +35,7 @@
     "url": "https://github.com/CyComponent/CytoscapeJsRenderer/issues"
   },
   "dependencies": {
-    "cytoscape": "^3.2.5",
+    "cytoscape": "^3.2.6",
     "cytoscape-cose-bilkent": "^3.0.2",
     "sigma": "^1.2.1"
   },
