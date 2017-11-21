@@ -1,8 +1,17 @@
+export const PRESET_COLORS = {
+  LIGHT: '#3FB4BD',
+  DARK: '#13363B',
+  SELECT: '#DF4240',
+  GRAY: '#ADABAD',
+  WHITE: '#FEFEFE',
+  BLACK: '#333333'
+}
+
 export const DEFAULT_SETTINGS = {
 
   'defaultLabelColor': '#333333',
   'defaultNodeColor': '#bbbbbb',
-  'defaultEdgeColor': '#777777',
+  'defaultEdgeColor': PRESET_COLORS.BLACK,
   defaultHoverLabelBGColor: '#EEEEFF',
   'labelColor': 'default',
   'edgeColor': 'default',
@@ -33,14 +42,6 @@ export const RENDERER_TYPE = {
   CANVAS: 'canvas'
 }
 
-export const PRESET_COLORS = {
-  LIGHT: '#3FB4BD',
-  DARK: '#13363B',
-  SELECT: '#DF4240',
-  GRAY: '#ADABAD',
-  WHITE: '#FEFEFE',
-  BLACK: '#333333'
-}
 
 
 export const PRESET_GRAPH_SIZE = {
@@ -53,8 +54,6 @@ export const SIZE_SENSITIVE_RENDERING_OPT = {
   SMALL: {
     minNodeSize: 3,
     maxNodeSize: 20,
-    minEdgeSize: 0.1,
-    maxEdgeSize: 1,
     labelThreshold: 4,
     labelSizeRatio: 1,
     nodesPowRatio: 0.8

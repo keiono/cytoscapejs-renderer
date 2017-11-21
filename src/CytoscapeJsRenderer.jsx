@@ -51,6 +51,13 @@ class CytoscapeJsRenderer extends Component {
     cy.add(network.elements.nodes)
     cy.add(network.elements.edges)
 
+    const command = this.props.rendererOptions.defaultFilter
+    if(command !== undefined && this.state.rendered === false) {
+
+      console.log("INITIAL COMMAND++++++++++++++++++++++++++++++++11111111111111111")
+      this.runCommand(command);
+    }
+
     const layout = this.props.rendererOptions.layout
 
     if (layout !== undefined && layout !== null) {
@@ -98,6 +105,7 @@ class CytoscapeJsRenderer extends Component {
 
     // Render actual network
     this.updateCyjsInternal(this.props.network, cy)
+
   }
 
 

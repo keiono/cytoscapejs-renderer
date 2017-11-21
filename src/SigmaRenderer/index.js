@@ -119,7 +119,7 @@ class SigmaRenderer extends Component {
         'target': ed.target,
         'size': DEF_EDGE_WIDTH,
         type: 'arrow',
-        color: PRESET_COLORS.GRAY
+        color: PRESET_COLORS.DARK
         // 'hover_color': this.styleUtil.getEdgeSelectedColor()
       }
 
@@ -195,7 +195,7 @@ class SigmaRenderer extends Component {
     if(numNodes < PRESET_GRAPH_SIZE.SMALL) {
       this.s.addRenderer({
         'container': this.sigmaView,
-        'type': RENDERER_TYPE.CANVAS,
+        'type': RENDERER_TYPE.WEBGL,
         'camera': this.cam
       })
     } else {
@@ -392,7 +392,7 @@ class SigmaRenderer extends Component {
 
     let j = edges.length
     while(j--) {
-      edges[j].color = PRESET_COLORS.GRAY
+      edges[j].color = PRESET_COLORS.BLACK
       edges[j].size = DEF_EDGE_WIDTH
     }
 
