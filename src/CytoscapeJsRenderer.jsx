@@ -275,27 +275,34 @@ class CytoscapeJsRenderer extends Component {
       }
     } else if (commandName === 'expandEdges') {
       // Use edge attributes to create individual edges
-      const edgeTypes = commandParams
+      const edgeType = commandParams.edgeType
+      const edgeColor = commandParams.edgeColor
 
 
-      if(Array.isArray(edgeTypes)) {
+      if(edgeType !== undefined) {
         cy.startBatch()
-        const newEdges = this.expandEdges(edgeTypes, cy.edges())
+
+        const newEdges = this.expandEdges(edgeType, cy.edges())
 
         console.log('ORIGINAL = ' + cy.edges().length)
         if(newEdges.length !==0) {
 
           const added = cy.add(newEdges)
-
-          console.log('UPDATED = ' + cy.edges().length)
-          console.log(added)
           added.style({
-            'line-color': 'pink'
+            'line-color': edgeColor
           })
-          // added.select()
-
-
         }
+        cy.endBatch()
+      }
+    } else if (commandName === 'collapseEdges') {
+      // Use edge attributes to create individual edges
+      const edgeType = commandParams
+
+      if(edgeType !== undefined) {
+        cy.startBatch()
+
+        const toBeRemoved = this.collapseEdges(edgeType, cy.edges())
+        cy.remove(cy.collection(toBeRemoved))
         cy.endBatch()
       }
 
@@ -313,42 +320,42 @@ class CytoscapeJsRenderer extends Component {
     this.state.cyjs.on(config.SUPPORTED_EVENTS, this.cyEventHandler)
   }
 
-  expandEdges = (edgeTypes, edges) => {
+  expandEdges = (edgeType, edges) => {
     let i = edges.length
 
     const newEdges = []
 
-    while(i--) {
-
+    while (i--) {
       const edge = edges[i]
-
-      let j = edgeTypes.length
-      while(j--) {
-        const edgeType = edgeTypes[j]
-
-        const value = edge.data(edgeType)
-
-        console.log(value)
-
-        if(value) {
-          const newEdge = {
-            data: {
-              id: edge.data('id') + '-' + edgeType,
-              source: edge.data('source'),
-              target: edge.data('target'),
-              interaction: edgeType,
-              RF_score: edge.data('RF_score')
-            }
+      const value = edge.data(edgeType)
+      if (value) {
+        const newEdge = {
+          data: {
+            id: edge.data('id') + '-' + edgeType,
+            source: edge.data('source'),
+            target: edge.data('target'),
+            interaction: edgeType,
+            RF_score: edge.data('RF_score')
           }
-
-          newEdges.push(newEdge)
-
         }
+        newEdges.push(newEdge)
       }
     }
-
-    console.log(newEdges)
     return newEdges
+  }
+
+  collapseEdges = (edgeType, edges) => {
+    let i = edges.length
+    const toBeRemoved = []
+
+    while (i--) {
+      const edge = edges[i]
+      const interactionType = edge.data('interaction')
+      if (interactionType === edgeType) {
+        toBeRemoved.push(edge)
+      }
+    }
+    return toBeRemoved
   }
 
   applyLayout = layout => {
