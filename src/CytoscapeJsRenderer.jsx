@@ -250,25 +250,39 @@ class CytoscapeJsRenderer extends Component {
     } else if (commandName === 'filter') {
       const options = commandParams.options
       const filterType = options.type
+      const isPrimary = options.isPrimary
+      const range = options.range
 
       if (filterType === 'numeric') {
 
         cy.startBatch()
 
 
-        const hiddenEdges = this.state.hiddenEdges
+        if(isPrimary) {
+          const hiddenEdges = this.state.hiddenEdges
 
-        if(hiddenEdges !== undefined) {
-          hiddenEdges.restore()
+          if(hiddenEdges !== undefined) {
+            hiddenEdges.restore()
+          }
+
+          const toBeShown = cy.elements(range)
+          const removed = cy.edges().remove()
+          this.setState({
+            hiddenEdges: removed
+          })
+          toBeShown.restore()
+        } else {
+          // Non-primary edge filtering
+          const currentEdges = cy.edges()
+          const toBeShown = currentEdges.filter(range)
+          const removed = cy.edges().remove()
+          this.setState({
+            hiddenEdges: removed
+          })
+          toBeShown.restore()
+
+
         }
-
-        const range = options.range
-        const toBeShown = cy.elements(range)
-        const removed = cy.edges().remove()
-        this.setState({
-          hiddenEdges: removed
-        })
-        toBeShown.restore()
 
         cy.endBatch()
 
