@@ -252,6 +252,7 @@ class CytoscapeJsRenderer extends Component {
       const filterType = options.type
       const isPrimary = options.isPrimary
       const range = options.range
+      const targetType = options.targetType
 
       if (filterType === 'numeric') {
 
@@ -261,26 +262,40 @@ class CytoscapeJsRenderer extends Component {
         if(isPrimary) {
           const hiddenEdges = this.state.hiddenEdges
 
-          if(hiddenEdges !== undefined) {
+          if (hiddenEdges !== undefined) {
             hiddenEdges.restore()
           }
+          console.log('-----------------P EDGE-------------')
+          console.log(commandParams)
+          const edges = cy.edges()
+          console.log(edges.length)
 
-          const toBeShown = cy.elements(range)
-          const removed = cy.edges().remove()
+          const toBeRemoved = cy.elements(range)
+          toBeRemoved.remove()
           this.setState({
-            hiddenEdges: removed
+            hiddenEdges: toBeRemoved
           })
-          toBeShown.restore()
+
+          // toBeShown.restore()
         } else {
-          // Non-primary edge filtering
-          const currentEdges = cy.edges()
-          const toBeShown = currentEdges.filter(range)
-          const removed = cy.edges().remove()
-          this.setState({
-            hiddenEdges: removed
-          })
-          toBeShown.restore()
+          // All others
+          console.log('-----------------STANDARD EDGE2-------------')
+          console.log(commandParams)
+          const edges = cy.edges()
+          console.log(edges.length)
 
+          // const allEdges = this.state[targetType]
+          // if(allEdges !== undefined) {
+          //   allEdges.restore()
+          // }
+          const toBeRemoved = edges.filter(range)
+          console.log(toBeRemoved.length)
+
+          this.setState({
+            [targetType]: toBeRemoved
+          })
+
+          toBeRemoved.remove()
 
         }
 
@@ -304,6 +319,9 @@ class CytoscapeJsRenderer extends Component {
           const added = cy.add(newEdges)
           added.style({
             'line-color': edgeColor
+          })
+          this.setState({
+            [edgeType]: added
           })
         }
         cy.endBatch()
@@ -349,12 +367,15 @@ class CytoscapeJsRenderer extends Component {
             source: edge.data('source'),
             target: edge.data('target'),
             interaction: edgeType,
-            RF_score: edge.data('RF_score')
+            RF_score: edge.data('RF_score'),
+            [edgeType]: edge.data(edgeType)
           }
         }
         newEdges.push(newEdge)
       }
     }
+
+
     return newEdges
   }
 
