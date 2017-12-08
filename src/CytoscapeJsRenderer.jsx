@@ -1,18 +1,18 @@
 import React, {Component} from 'react'
 import cytoscape from 'cytoscape'
 import regCose from 'cytoscape-cose-bilkent'
-
-
 import * as config from './CytoscapeJsConfig'
 
-// Register optional layout plugin
+const EDGE_TYPE_TAG = 'interaction'
 
+// Register optional layout plugin
 regCose(cytoscape)
 
 /**
  * Renderer using Cytoscape.js
  */
 class CytoscapeJsRenderer extends Component {
+
   constructor(props) {
     super(props)
 
@@ -39,7 +39,6 @@ class CytoscapeJsRenderer extends Component {
     }
 
     let cy = null
-
     if (cyjs === null) {
       cy = this.state.cyjs
     } else {
@@ -51,21 +50,19 @@ class CytoscapeJsRenderer extends Component {
     cy.add(network.elements.nodes)
     cy.add(network.elements.edges)
 
+    // Apply optional filter if available
     const command = this.props.rendererOptions.defaultFilter
     if(command !== undefined && this.state.rendered === false) {
-
-      console.log("INITIAL COMMAND++++++++++++++++++++++++++++++++11111111111111111")
-      this.runCommand(command);
+      this.runCommand(command)
     }
 
+    // Name of layout algorithm
     const layout = this.props.rendererOptions.layout
-
     if (layout !== undefined && layout !== null) {
       this.applyLayout(layout)
     } else {
       this.applyLayout('cose')
     }
-
 
     cy.fit()
     this.setEventListener(cy)
@@ -105,9 +102,7 @@ class CytoscapeJsRenderer extends Component {
 
     // Render actual network
     this.updateCyjsInternal(this.props.network, cy)
-
   }
-
 
   shouldComponentUpdate(nextProps, nextState) {
     // Update is controlled by componentWillReceiveProps()
@@ -115,11 +110,12 @@ class CytoscapeJsRenderer extends Component {
   }
 
   /**
-   * This is the main function to determin whether update is necessary or not.
+   * This is the main function to determine
+   * whether update is necessary or not.
    */
   componentWillReceiveProps(nextProps) {
     // Check status of network data
-    if (nextProps === undefined || nextProps.network === undefined) {
+    if (nextProps.network === undefined) {
       return
     }
 
@@ -141,7 +137,6 @@ class CytoscapeJsRenderer extends Component {
         if (name !== newName) {
           this.state.cyjs.style(newVs.style)
         }
-
       }
     }
 
@@ -255,65 +250,56 @@ class CytoscapeJsRenderer extends Component {
       const targetType = options.targetType
 
       if (filterType === 'numeric') {
-
         cy.startBatch()
 
-
         if(isPrimary) {
+          // Before filtering, restore all original edges
           const hiddenEdges = this.state.hiddenEdges
-
           if (hiddenEdges !== undefined) {
             hiddenEdges.restore()
           }
-          console.log('-----------------P EDGE-------------')
-          console.log(commandParams)
-          const edges = cy.edges()
-          console.log(edges.length)
 
+          // Apply filter.  This result returns edges to be REMOVED
           const toBeRemoved = cy.elements(range)
-          toBeRemoved.remove()
+
+          // Save this removed
           this.setState({
             hiddenEdges: toBeRemoved
           })
 
-          // toBeShown.restore()
+          toBeRemoved.remove()
         } else {
-          // All others
-          console.log('-----------------STANDARD EDGE2-------------')
-          console.log(commandParams)
+          // Before filtering, restore all original edges
+          const hiddenEdges = this.state[targetType]
+          if (hiddenEdges !== undefined) {
+            hiddenEdges.restore()
+          }
+
+          // Current edges
           const edges = cy.edges()
-          console.log(edges.length)
 
           // const allEdges = this.state[targetType]
           // if(allEdges !== undefined) {
           //   allEdges.restore()
           // }
           const toBeRemoved = edges.filter(range)
-          console.log(toBeRemoved.length)
 
           this.setState({
             [targetType]: toBeRemoved
           })
-
           toBeRemoved.remove()
-
         }
-
         cy.endBatch()
-
       }
     } else if (commandName === 'expandEdges') {
       // Use edge attributes to create individual edges
       const edgeType = commandParams.edgeType
       const edgeColor = commandParams.edgeColor
 
-
       if(edgeType !== undefined) {
         cy.startBatch()
 
         const newEdges = this.expandEdges(edgeType, cy.edges())
-
-        console.log('ORIGINAL = ' + cy.edges().length)
         if(newEdges.length !==0) {
 
           const added = cy.add(newEdges)
@@ -337,11 +323,8 @@ class CytoscapeJsRenderer extends Component {
         cy.remove(cy.collection(toBeRemoved))
         cy.endBatch()
       }
-
-
     } else if (commandName === 'layout') {
       const name = commandParams.name
-
       this.applyLayout(name)
     }
 
@@ -352,9 +335,11 @@ class CytoscapeJsRenderer extends Component {
     this.state.cyjs.on(config.SUPPORTED_EVENTS, this.cyEventHandler)
   }
 
+  /*
+    Using data type to add more edges to the primary one
+   */
   expandEdges = (edgeType, edges) => {
     let i = edges.length
-
     const newEdges = []
 
     while (i--) {
@@ -374,8 +359,6 @@ class CytoscapeJsRenderer extends Component {
         newEdges.push(newEdge)
       }
     }
-
-
     return newEdges
   }
 
