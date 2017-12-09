@@ -139,7 +139,7 @@ const CommandExecutor = (commandName, options) => {
  const command = commands[commandName]
 
   if(command !== undefined) {
-   
+
   }
 
 }

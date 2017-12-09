@@ -264,7 +264,8 @@ class CytoscapeJsRenderer extends Component {
 
           // Save this removed
           this.setState({
-            hiddenEdges: toBeRemoved
+            hiddenEdges: toBeRemoved,
+            lastFilter: range
           })
 
           toBeRemoved.remove()
@@ -288,6 +289,11 @@ class CytoscapeJsRenderer extends Component {
             [targetType]: toBeRemoved
           })
           toBeRemoved.remove()
+
+          if(this.state.lastFilter !== undefined) {
+            const unnecessary = cy.elements(this.state.lastFilter)
+            unnecessary.remove()
+          }
         }
         cy.endBatch()
       }
