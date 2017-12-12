@@ -28,12 +28,13 @@ class SigmaRenderer extends Component {
     this.state = {
       nodeColors: {},
       edgeColors: {},
-      flip: false
+      flip: false,
+      originalNodes: {}
     }
   }
 
 
-  /**
+  /*
    * Update is always controlled by componentWillReceiveProps(),
    * so base tag never been updated
    */
@@ -77,10 +78,21 @@ class SigmaRenderer extends Component {
     const colors = {}
     const sigmaNodes = []
 
+    const originalNodes = this.state.originalNodes
+
     let i = nodesLen
     while(i--) {
       const node = nodes[i]
       const nodeData = node.data
+
+      const originalName = nodeData.Original_Name
+      const name = nodeData.name
+
+      if(originalName === undefined) {
+        // This is the original node
+        originalNodes[name] = nodeData.id
+      }
+
       const sigmaNode = {
         id: nodeData.id,
         label: (nodeData.isRoot) ? 'ROOT' : nodeData.Label,
@@ -101,7 +113,10 @@ class SigmaRenderer extends Component {
     }
 
     // Store original colors as state
-    this.setState({nodeColors: colors})
+    this.setState({
+      nodeColors: colors,
+      originalNodes: originalNodes
+    })
 
     return sigmaNodes
   }
@@ -119,6 +134,7 @@ class SigmaRenderer extends Component {
         'target': ed.target,
         'size': DEF_EDGE_WIDTH,
         type: 'arrow',
+        // type: 'curve',
         color: PRESET_COLORS.DARK
         // 'hover_color': this.styleUtil.getEdgeSelectedColor()
       }
@@ -195,7 +211,7 @@ class SigmaRenderer extends Component {
     if(numNodes < PRESET_GRAPH_SIZE.SMALL) {
       this.s.addRenderer({
         'container': this.sigmaView,
-        'type': RENDERER_TYPE.WEBGL,
+        'type': RENDERER_TYPE.CANVAS,
         'camera': this.cam
       })
     } else {
@@ -269,26 +285,47 @@ class SigmaRenderer extends Component {
       const nodeId = node.id
       const nodeProps = {}
 
+
+      const originalName = node.props.Original_Name
+      if(originalName !== undefined) {
+        // This is a link node
+        const originalId = this.state.originalNodes[originalName]
+
+        console.log("Adding: ")
+
+        const linkEdgeId = nodeId + '-hidden-' + originalId
+        this.setState({linkEdgeId: linkEdgeId})
+        const linkToOriginal = {
+          id: linkEdgeId,
+          source: nodeId,
+          target: originalId,
+          size: 10,
+          color: '#FF7700',
+          type: 'curve',
+
+        }
+
+        this.s.graph.addEdge(linkToOriginal)
+      }
+
       nodeProps[nodeId] = node
 
       const neighbours = this.s.graph.adjacentNodes(nodeId)
-      console.log(neighbours)
-
       const connectingEdges = this.s.graph.adjacentEdges(nodeId)
-      console.log(connectingEdges)
 
       // Special case: Link node
-      if(connectingEdges !== undefined) {
+      // if(connectingEdges !== undefined) {
+      //
+      //   const targetNodeId = connectingEdges[0].target
+      //   const targetNode = this.s.graph.nodes(targetNodeId)
+      //
+      //   if(targetNode.props.Label.startsWith('Hidden')) {
+      //     this.props.eventHandlers.selectNodes([nodeId], nodeProps)
+      //     return
+      //   }
+      //
+      // }
 
-        const targetNodeId = connectingEdges[0].target
-        const targetNode = this.s.graph.nodes(targetNodeId)
-
-        if(targetNode.props.Label.startsWith('Hidden')) {
-          this.props.eventHandlers.selectNodes([nodeId], nodeProps)
-          return
-        }
-
-      }
 
       this.s.settings('labelColor', 'node');
       this.s.settings('minEdgeSize', 0.1);
@@ -298,7 +335,7 @@ class SigmaRenderer extends Component {
         const sourceId = edge.source
         const sourceNode = this.s.graph.nodes(sourceId)
 
-        if(edge.source === nodeId) {
+        if(edge.source === nodeId && originalName === undefined) {
           // Out edge
           edge.color = PRESET_COLORS.SELECT
           edge.size = 10
@@ -344,7 +381,6 @@ class SigmaRenderer extends Component {
 
       this.s.refresh()
 
-
       // Move camera to node
       // CommandExecutor('zoomToNode', [this.cam, node, 0.02])
 
@@ -378,6 +414,14 @@ class SigmaRenderer extends Component {
 
 
   resetView = () => {
+    // Delete link
+    const linkEdgeId = this.state.linkEdgeId
+    if(linkEdgeId !== undefined) {
+      this.s.graph.dropEdge(linkEdgeId)
+      this.setState({
+        linkEdgeId: undefined
+      })
+    }
 
     // Get sigma nodes and edges
     const nodes = this.s.graph.nodes()
@@ -395,6 +439,7 @@ class SigmaRenderer extends Component {
       edges[j].color = PRESET_COLORS.BLACK
       edges[j].size = DEF_EDGE_WIDTH
     }
+
 
   }
 

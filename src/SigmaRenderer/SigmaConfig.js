@@ -14,7 +14,7 @@ export const DEFAULT_SETTINGS = {
   'defaultEdgeColor': PRESET_COLORS.BLACK,
   defaultHoverLabelBGColor: '#EEEEFF',
   'labelColor': 'default',
-  'edgeColor': 'default',
+  'edgeColor': 'source',
   'mouseZoomDuration': 0,
   'mouseInertiaDuration': 0,
   doubleClickEnabled: false,
@@ -56,7 +56,8 @@ export const SIZE_SENSITIVE_RENDERING_OPT = {
     maxNodeSize: 20,
     labelThreshold: 4,
     labelSizeRatio: 1,
-    nodesPowRatio: 0.8
+    nodesPowRatio: 0.8,
+    defaultEdgeType: 'curve'
   },
   MEDIUM: {
 
