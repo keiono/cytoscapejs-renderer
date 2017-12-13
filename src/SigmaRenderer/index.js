@@ -53,6 +53,16 @@ class SigmaRenderer extends Component {
     if (command !== this.props.command) {
       if(command.parameters === undefined || command.parameters === {}) {
         CommandExecutor(command.command, [this.cam])
+      } else if(command.command === 'select') {
+        const targetNodes = this.s.graph.nodes(command.parameters)
+
+        const nodes = this.s.graph.nodes()
+        let i = nodes.length
+        while(i--) {
+          nodes[i].color = PRESET_COLORS.GRAY
+        }
+
+        targetNodes.forEach(node => {node.color = '#FF0000'})
       } else {
         //TODO: generalize this!
         const targetNode = this.s.graph.nodes(command.parameters)

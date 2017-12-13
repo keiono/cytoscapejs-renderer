@@ -58,12 +58,23 @@ const zoomOut = (camera, zoomRatio = DEF_ZOOM_RATIO) => {
 
 }
 
+const selectNodes = (camera, nodeIds) => {
+
+  sigma.misc.animation.camera(
+    camera,
+    {'ratio': camera.ratio * zoomRatio},
+    {'duration': 150},
+  );
+
+}
+
 
 const commands = {
   fit,
   zoomToNode,
   zoomIn,
   zoomOut,
+  selectNodes
 }
 
 export const CommandExecutor = (commandName, args=[]) => {
