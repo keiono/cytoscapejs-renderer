@@ -61,6 +61,7 @@ class SigmaRenderer extends Component {
         while(i--) {
           nodes[i].color = PRESET_COLORS.GRAY
         }
+        this.s.refresh()
 
         targetNodes.forEach(node => {node.color = '#FF0000'})
       } else {
@@ -98,10 +99,24 @@ class SigmaRenderer extends Component {
       const originalName = nodeData.Original_Name
       const name = nodeData.name
 
-      if(originalName === undefined) {
-        // This is the original node
-        originalNodes[name] = nodeData.id
+
+      // Generate map of nodes
+      const label = nodeData.Label
+      let aliases = originalNodes[label]
+
+      if(aliases === undefined || aliases === null) {
+        aliases = []
       }
+
+      aliases.push(nodeData.id)
+
+      originalNodes[label] = aliases
+
+
+      // if(originalName === undefined) {
+      //   // This is the original node
+      //   originalNodes[name] = nodeData.id
+      // }
 
       const sigmaNode = {
         id: nodeData.id,
@@ -296,26 +311,34 @@ class SigmaRenderer extends Component {
       const nodeProps = {}
 
 
-      const originalName = node.props.Original_Name
-      if(originalName !== undefined) {
+      const label = node.props.Label
+      const aliases = this.state.originalNodes[label]
+
+      if( aliases !== undefined) {
+
+        const links = []
+        aliases.forEach(id => {
+          console.log("Adding: " + id)
+
+          const linkEdgeId = nodeId + '-hidden-' + id
+          const linkToOriginal = {
+            id: linkEdgeId,
+            source: nodeId,
+            target: id,
+            size: 10,
+            edgeType: 'link'
+
+          }
+
+          this.s.graph.addEdge(linkToOriginal)
+          links.push(linkEdgeId)
+        })
+
+        this.setState({links: links})
+
         // This is a link node
-        const originalId = this.state.originalNodes[originalName]
+        // const originalId = this.state.originalNodes[originalName]
 
-        console.log("Adding: ")
-
-        const linkEdgeId = nodeId + '-hidden-' + originalId
-        this.setState({linkEdgeId: linkEdgeId})
-        const linkToOriginal = {
-          id: linkEdgeId,
-          source: nodeId,
-          target: originalId,
-          size: 10,
-          color: '#FF7700',
-          type: 'curve',
-
-        }
-
-        this.s.graph.addEdge(linkToOriginal)
       }
 
       nodeProps[nodeId] = node
@@ -345,7 +368,7 @@ class SigmaRenderer extends Component {
         const sourceId = edge.source
         const sourceNode = this.s.graph.nodes(sourceId)
 
-        if(edge.source === nodeId && originalName === undefined) {
+        if(edge.source === nodeId) {
           // Out edge
           edge.color = PRESET_COLORS.SELECT
           edge.size = 10
@@ -358,6 +381,11 @@ class SigmaRenderer extends Component {
         } else {
           edge.color = PRESET_COLORS.LIGHT
           edge.size = 2
+        }
+
+        if(edge.edgeType === 'link') {
+          edge.color = '#FF7700'
+          edge.type = 'arrow'
         }
       })
 
@@ -424,12 +452,18 @@ class SigmaRenderer extends Component {
 
 
   resetView = () => {
-    // Delete link
-    const linkEdgeId = this.state.linkEdgeId
-    if(linkEdgeId !== undefined) {
-      this.s.graph.dropEdge(linkEdgeId)
+    // Delete links
+    const links = this.state.links
+
+    if(links !== undefined) {
+
+      links.forEach(link => {
+        this.s.graph.dropEdge(link)
+
+      })
+
       this.setState({
-        linkEdgeId: undefined
+        links: undefined
       })
     }
 
