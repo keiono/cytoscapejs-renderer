@@ -52,12 +52,14 @@ export const PRESET_GRAPH_SIZE = {
 
 export const SIZE_SENSITIVE_RENDERING_OPT = {
   SMALL: {
-    minNodeSize: 3,
+    minNodeSize: 2,
     maxNodeSize: 20,
     labelThreshold: 4,
     labelSizeRatio: 1,
     nodesPowRatio: 0.8,
-    defaultEdgeType: 'curve'
+    defaultEdgeType: 'curve',
+    minEdgeSize: 0.01,
+    maxEdgeSize: 0.5,
   },
   MEDIUM: {
 

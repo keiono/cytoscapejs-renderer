@@ -101,7 +101,7 @@ class SigmaRenderer extends Component {
 
 
       // Generate map of nodes
-      const label = nodeData.Label
+      let label = nodeData.Label
       let aliases = originalNodes[label]
 
       if(aliases === undefined || aliases === null) {
@@ -118,9 +118,13 @@ class SigmaRenderer extends Component {
       //   originalNodes[name] = nodeData.id
       // }
 
+      if(originalName !== undefined && originalName !== null) {
+        label = label + ' \uD83D\uDD17'
+      }
+
       const sigmaNode = {
         id: nodeData.id,
-        label: (nodeData.isRoot) ? 'ROOT' : nodeData.Label,
+        label: (nodeData.isRoot) ? 'ROOT'  :label,
         x: node.position.x,
         y: node.position.y,
         size: nodeData.Size,
