@@ -370,7 +370,9 @@ class SigmaRenderer extends Component {
 
       connectingEdges.forEach(edge => {
         const sourceId = edge.source
+        const targetId = edge.target
         const sourceNode = this.s.graph.nodes(sourceId)
+        const targetNode = this.s.graph.nodes(targetId)
 
         if(edge.source === nodeId) {
           // Out edge
@@ -390,6 +392,10 @@ class SigmaRenderer extends Component {
         if(edge.edgeType === 'link') {
           edge.color = '#FF7700'
           edge.type = 'arrow'
+          if(!targetNode.props.Hidden) {
+            edge.size = 50
+            edge.color= '#304FFE'
+          }
         }
       })
 
