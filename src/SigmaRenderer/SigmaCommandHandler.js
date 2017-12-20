@@ -68,22 +68,36 @@ const selectNodes = (camera, nodeIds) => {
 
 }
 
+const findPath = (graph, startId, goalId, settings = {}) => {
+
+  const path = graph.astar(startId, '95', settings)
+
+  console.log('??????????????????????????? PATH')
+  console.log(path)
+  return path
+}
+
+
 
 const commands = {
   fit,
   zoomToNode,
   zoomIn,
   zoomOut,
-  selectNodes
+  selectNodes,
+  findPath
 }
 
-export const CommandExecutor = (commandName, args=[]) => {
+export const SigmaCommandExecutor = (commandName, args=[]) => {
 
   const command = commands[commandName]
   if (command !== undefined) {
 
+    console.log('??????????????????????????? COM')
+    console.log(command)
     // If such command is available, execute it.
-    command(...args)
+    return command(...args)
+
 
   } else {
     console.warn(`Command is not available: ${commandName}`)

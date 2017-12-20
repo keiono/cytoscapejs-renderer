@@ -14,7 +14,7 @@ import {
 import CXStyleUtil from './CXStyleUtil'
 
 import {addCustomMethods} from './customMethods'
-import {CommandExecutor} from './CommandHandler'
+import {SigmaCommandExecutor} from './SigmaCommandHandler'
 
 // Renderer types supported by Sigma.js
 const DEF_EDGE_WIDTH = 0.01
@@ -50,9 +50,11 @@ class SigmaRenderer extends Component {
   componentWillReceiveProps(nextProps) {
 
     const command = nextProps.command
+    let result = null
+
     if (command !== this.props.command) {
       if(command.parameters === undefined || command.parameters === {}) {
-        CommandExecutor(command.command, [this.cam])
+        result = SigmaCommandExecutor(command.command, [this.cam])
       } else if(command.command === 'select') {
         const targetNodes = this.s.graph.nodes(command.parameters)
 
@@ -67,8 +69,10 @@ class SigmaRenderer extends Component {
       } else {
         //TODO: generalize this!
         const targetNode = this.s.graph.nodes(command.parameters)
-        CommandExecutor(command.command, [this.cam, targetNode, 0.03])
+        result = SigmaCommandExecutor(command.command, [this.cam, targetNode, 0.03])
       }
+
+      this.props.eventHandlers.commandFinished(command.command, result)
     }
   }
 
@@ -430,7 +434,10 @@ class SigmaRenderer extends Component {
       this.s.refresh()
 
       // Move camera to node
-      // CommandExecutor('zoomToNode', [this.cam, node, 0.02])
+      // SigmaCommandExecutor('zoomToNode', [this.cam, node, 0.02])
+      const result = SigmaCommandExecutor('findPath', [this.s.graph, node.id, '95', {}])
+
+      this.props.eventHandlers.commandFinished('findPath', result)
 
       this.props.eventHandlers.selectNodes([nodeId], nodeProps)
     })
