@@ -50,28 +50,28 @@ class SigmaRenderer extends Component {
   componentWillReceiveProps(nextProps) {
 
     const command = nextProps.command
+    const commandName = command.command
+    const params = command.parameters
+
     let result = null
 
+
+    console.log('??????????????????????????? Pre command')
+    console.log(nextProps)
+
     if (command !== this.props.command) {
-      if(command.parameters === undefined || command.parameters === {}) {
-        result = SigmaCommandExecutor(command.command, [this.cam])
-      } else if(command.command === 'select') {
-        const targetNodes = this.s.graph.nodes(command.parameters)
 
-        const nodes = this.s.graph.nodes()
-        let i = nodes.length
-        while(i--) {
-          nodes[i].color = PRESET_COLORS.GRAY
-        }
-        this.s.refresh()
+      if(params === undefined) {
 
-        targetNodes.forEach(node => {node.color = '#FF0000'})
+        // Execute command without any parameters
+        result = SigmaCommandExecutor(commandName, [this.cam, this.s.graph])
       } else {
-        //TODO: generalize this!
-        const targetNode = this.s.graph.nodes(command.parameters)
-        result = SigmaCommandExecutor(command.command, [this.cam, targetNode, 0.03])
+        result = SigmaCommandExecutor(commandName, [this.cam, this.s.graph, params])
       }
 
+      this.s.refresh()
+
+      // Run function for post processing
       this.props.eventHandlers.commandFinished(command.command, result)
     }
   }
@@ -370,7 +370,7 @@ class SigmaRenderer extends Component {
 
       this.s.settings('labelColor', 'node');
       this.s.settings('minEdgeSize', 0.1);
-      this.s.settings('maxEdgeSize', 1);
+      this.s.settings('maxEdgeSize', 5);
 
       connectingEdges.forEach(edge => {
         const sourceId = edge.source
@@ -397,7 +397,7 @@ class SigmaRenderer extends Component {
           edge.color = '#FF7700'
           edge.type = 'arrow'
           if(!targetNode.props.Hidden) {
-            edge.size = 50
+            edge.size = 1000
             edge.color= '#304FFE'
           }
         }
@@ -431,15 +431,17 @@ class SigmaRenderer extends Component {
 
       node.color = PRESET_COLORS.SELECT
 
-      this.s.refresh()
 
       // Move camera to node
       // SigmaCommandExecutor('zoomToNode', [this.cam, node, 0.02])
-      const result = SigmaCommandExecutor('findPath', [this.s.graph, node.id, '95', {}])
+      const result = SigmaCommandExecutor('findPath', [this.cam, this.s.graph, [nodeId, '95']])
+
 
       this.props.eventHandlers.commandFinished('findPath', result)
 
       this.props.eventHandlers.selectNodes([nodeId], nodeProps)
+
+      this.s.refresh()
     })
 
 

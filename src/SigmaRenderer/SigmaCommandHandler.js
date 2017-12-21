@@ -1,13 +1,14 @@
 import sigma from 'sigma'
 
+
+import {
+  PRESET_COLORS,
+} from './SigmaConfig'
+
 const DEF_ZOOM_RATIO = 1.2
 
 
-const fit = (camera) => {
-
-  console.log("Camera: ")
-  console.log(camera)
-
+const fit = (camera, graph) => {
   sigma.misc.animation.camera(
     camera,
     {
@@ -21,7 +22,12 @@ const fit = (camera) => {
 
 }
 
-const zoomToNode = (camera, node, ratio=0.001) => {
+const zoomToNode = (camera, graph, nodeId, ratio=0.05) => {
+
+  const node = graph.nodes(nodeId)
+  if(node === undefined) {
+    return
+  }
 
   sigma.misc.animation.camera(
     camera,
@@ -35,10 +41,9 @@ const zoomToNode = (camera, node, ratio=0.001) => {
     }
   );
 
-
 }
 
-const zoomIn = (camera, zoomRatio = DEF_ZOOM_RATIO) => {
+const zoomIn = (camera, graph, zoomRatio = DEF_ZOOM_RATIO) => {
 
   sigma.misc.animation.camera(
     camera,
@@ -48,7 +53,7 @@ const zoomIn = (camera, zoomRatio = DEF_ZOOM_RATIO) => {
 
 }
 
-const zoomOut = (camera, zoomRatio = DEF_ZOOM_RATIO) => {
+const zoomOut = (camera, graph, zoomRatio = DEF_ZOOM_RATIO) => {
 
   sigma.misc.animation.camera(
     camera,
@@ -58,23 +63,52 @@ const zoomOut = (camera, zoomRatio = DEF_ZOOM_RATIO) => {
 
 }
 
-const selectNodes = (camera, nodeIds) => {
 
-  sigma.misc.animation.camera(
-    camera,
-    {'ratio': camera.ratio * zoomRatio},
-    {'duration': 150},
-  );
+const findPath = (camera, graph, parameters) => {
 
-}
+  const startId = parameters[0]
+  const goalId = parameters[1]
 
-const findPath = (graph, startId, goalId, settings = {}) => {
-
-  const path = graph.astar(startId, '95', settings)
+  const path = graph.astar(startId, goalId, {})
 
   console.log('??????????????????????????? PATH')
   console.log(path)
+
+  path.forEach(node => {
+    node.color = '#FF0000'
+
+  })
+
+  for(let i = 0; i<path.length-1; i++) {
+
+    const source = path[i]
+    const target = path[i+1]
+
+    console.log(source.id)
+    const edge = graph.getEdge(source.id, target.id)
+    if(edge !== undefined) {
+      edge.size = 1000
+      edge.color = '#FF0000'
+    }
+  }
+
   return path
+}
+
+const select = (camera, graph, targets) => {
+
+  // To be selected
+  const targetNodes = graph.nodes(targets)
+
+  // All nodes in current graph
+  const nodes = graph.nodes()
+
+  let i = nodes.length
+  while(i--) {
+    nodes[i].color = PRESET_COLORS.GRAY
+  }
+
+  targetNodes.forEach(node => {node.color = '#FF0000'})
 }
 
 
@@ -84,17 +118,14 @@ const commands = {
   zoomToNode,
   zoomIn,
   zoomOut,
-  selectNodes,
-  findPath
+  findPath,
+  select
 }
 
 export const SigmaCommandExecutor = (commandName, args=[]) => {
 
   const command = commands[commandName]
   if (command !== undefined) {
-
-    console.log('??????????????????????????? COM')
-    console.log(command)
     // If such command is available, execute it.
     return command(...args)
 
