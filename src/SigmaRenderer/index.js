@@ -29,7 +29,8 @@ class SigmaRenderer extends Component {
       nodeColors: {},
       edgeColors: {},
       flip: false,
-      originalNodes: {}
+      originalNodes: {},
+      rootId: null
     }
   }
 
@@ -49,15 +50,15 @@ class SigmaRenderer extends Component {
    */
   componentWillReceiveProps(nextProps) {
 
+
+    console.log('-----------------------=====================-----------------COMMAND')
+    console.log(nextProps.command)
+
     const command = nextProps.command
     const commandName = command.command
     const params = command.parameters
 
     let result = null
-
-
-    console.log('??????????????????????????? Pre command')
-    console.log(nextProps)
 
     if (command !== this.props.command) {
 
@@ -95,6 +96,8 @@ class SigmaRenderer extends Component {
 
     const originalNodes = this.state.originalNodes
 
+    let rootId = null
+
     let i = nodesLen
     while(i--) {
       const node = nodes[i]
@@ -102,6 +105,10 @@ class SigmaRenderer extends Component {
 
       const originalName = nodeData.Original_Name
       const name = nodeData.name
+
+      if(nodeData.isRoot) {
+        rootId = nodeData.id
+      }
 
 
       // Generate map of nodes
@@ -148,7 +155,8 @@ class SigmaRenderer extends Component {
     // Store original colors as state
     this.setState({
       nodeColors: colors,
-      originalNodes: originalNodes
+      originalNodes: originalNodes,
+      rootId: rootId
     })
 
     return sigmaNodes
@@ -434,7 +442,7 @@ class SigmaRenderer extends Component {
 
       // Move camera to node
       // SigmaCommandExecutor('zoomToNode', [this.cam, node, 0.02])
-      const result = SigmaCommandExecutor('findPath', [this.cam, this.s.graph, [nodeId, '95']])
+      const result = SigmaCommandExecutor('findPath', [this.cam, this.s.graph, [nodeId, this.state.rootId]])
 
 
       this.props.eventHandlers.commandFinished('findPath', result)
