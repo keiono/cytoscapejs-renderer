@@ -1,5 +1,4 @@
 import React, {Component} from 'react'
-import PropTypes from 'prop-types'
 
 import sigma from 'sigma'
 
@@ -644,17 +643,6 @@ class SigmaRenderer extends Component {
 
 }
 
-SigmaRenderer.propTypes = {
-
-  // Indicates hidden edge or not.
-  edgeTypeTagName: PropTypes.string,
-
-  // Network Style in CyVisualProperties object
-  networkStyle: PropTypes.object,
-
-  // Contains sigma.js options
-  rendererOptions: PropTypes.object
-}
 
 
 SigmaRenderer.defaultProps = {
