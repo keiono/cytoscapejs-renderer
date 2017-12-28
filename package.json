@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "cytoscape": "^3.2.7",
-    "cytoscape-cose-bilkent": "^3.0.4",
+    "cytoscape-cose-bilkent": "^4.0.0",
     "react": "^16.2.0",
     "sigma": "^1.2.1"
   },
@@ -48,11 +48,10 @@
     "babel-eslint": "^8.1.2",
     "babel-jest": "^22.0.4",
     "babel-loader": "^7.1.2",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-plugin-transform-export-extensions": "^6.22.0",
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
     "eslint": "^4.14.0",
     "jest": "^22.0.4",
     "prettier": "1.9.2",
