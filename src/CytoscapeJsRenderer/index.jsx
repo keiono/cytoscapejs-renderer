@@ -209,11 +209,60 @@ class CytoscapeJsRenderer extends Component {
       // cy.elements().addClass('faded')
       // target.removeClass('faded')
 
+      const colorMap = commandParams.groupColors
+
       target.select()
       if(commandParams.selectedColor !== undefined) {
         target.style({
           'background-color': commandParams.selectedColor
         })
+      }
+
+
+
+
+      // Multiple colors
+      if(colorMap !== undefined) {
+        target.forEach(node => {
+          console.log("^^^^ SELE")
+          console.log(node.data())
+
+
+          const colors = []
+
+          const nodeData = node.data()
+          const keys = Object.keys(nodeData)
+
+          keys.forEach(key => {
+            if(key.startsWith('Group')) {
+              if(nodeData[key]) {
+                const parts = key.split('_')
+                const groupName = parts[1] + ':' + parts[2]
+                const color = colorMap.get(groupName)
+                colors.push(color)
+              }
+            }
+          })
+
+          if(colors.size === 1) {
+            node.style({'background-color': colors[0]})
+          } else {
+            const colorCount = colors.length
+            const size = 100.0/colorCount
+            const style = {
+              'pie-size': '95%',
+            }
+
+            for(let i = 0; i<colorCount; i++) {
+              const index = i + 1
+              style['pie-' + index +'-background-color'] = colors[i]
+              style['pie-' + index +'-background-size'] = size
+            }
+            node.style(style)
+
+          }
+        })
+
       }
     } else if (commandName === 'unselect') {
       const idList = commandParams.idList
