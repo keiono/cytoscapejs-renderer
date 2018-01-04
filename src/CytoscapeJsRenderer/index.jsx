@@ -218,15 +218,9 @@ class CytoscapeJsRenderer extends Component {
         })
       }
 
-
-
-
       // Multiple colors
       if(colorMap !== undefined) {
         target.forEach(node => {
-          console.log("^^^^ SELE")
-          console.log(node.data())
-
 
           const colors = []
 
@@ -251,6 +245,7 @@ class CytoscapeJsRenderer extends Component {
             const size = 100.0/colorCount
             const style = {
               'pie-size': '95%',
+              'background-opacity': 0
             }
 
             for(let i = 0; i<colorCount; i++) {
@@ -259,7 +254,6 @@ class CytoscapeJsRenderer extends Component {
               style['pie-' + index +'-background-size'] = size
             }
             node.style(style)
-
           }
         })
 
