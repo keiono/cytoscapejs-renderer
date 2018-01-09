@@ -23,8 +23,6 @@ const zoomToNode = (camera, graph, nodeId, ratio = 0.05) => {
     return;
   }
 
-
-  console.log("&&&&&&&&&&&&&&&&&&&&&&& ZOOMING TO " + nodeId)
   sigma.misc.animation.camera(
     camera,
     {
@@ -59,9 +57,6 @@ const findPath = (camera, graph, parameters) => {
   const goalId = parameters[1];
 
   const path = graph.astar(startId, goalId, {});
-
-  console.log("??????????????????????????? PATH");
-  console.log(path);
 
   if (path === undefined) {
     return path;
@@ -103,13 +98,48 @@ const select = (camera, graph, targets) => {
   });
 };
 
+const showNeighbours = (camera, graph, params) => {
+  toggleNeighbour(camera, graph, params[0], params[1], true)
+}
+
+const hideNeighbours = (camera, graph, params) => {
+  toggleNeighbour(camera, graph, params[0],params[1], false)
+}
+
+
+const toggleNeighbour = (camera, graph, nodeId, nodeType, show) => {
+  // To be selected
+
+  const neighbours = graph.adjacentNodes(nodeId)
+
+  let i = neighbours.length;
+  if(!show) {
+    while (i--) {
+      const node = neighbours[i]
+      if(node.props.NodeType === nodeType) {
+        graph.dropNode(node.id)
+      }
+    }
+
+    // Dropped nodes
+    return neighbours
+  } else {
+    while (i--) {
+      //graph.dropNode(neighbours[i])
+    }
+  }
+};
+
+
 const commands = {
   fit,
   zoomToNode,
   zoomIn,
   zoomOut,
   findPath,
-  select
+  select,
+  showNeighbours,
+  hideNeighbours
 };
 
 export const SigmaCommandExecutor = (commandName, args = []) => {

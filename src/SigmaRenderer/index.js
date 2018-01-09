@@ -20,7 +20,6 @@ const DEF_EDGE_WIDTH = 0.01
 
 
 class SigmaRenderer extends Component {
-
   constructor (props, context) {
     super(props, context)
 
@@ -48,7 +47,6 @@ class SigmaRenderer extends Component {
    * All others will be updated by event handlers
    */
   componentWillReceiveProps(nextProps) {
-
 
     console.log('-----------------------=====================-----------------COMMAND')
     console.log(nextProps.command)
@@ -473,6 +471,11 @@ class SigmaRenderer extends Component {
       this.setState({currentHiddenEdges: undefined})
       this.s.refresh()
     });
+
+
+    this.s.bind('overNode outNode', (e) => {
+      this.props.eventHandlers.hoverOnNode(e.data.node.id, e.data.node.props)
+    })
 
   }
 
