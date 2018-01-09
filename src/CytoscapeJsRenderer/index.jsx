@@ -118,12 +118,12 @@ class CytoscapeJsRenderer extends Component {
     console.log("****************************************************** ")
     console.log(this.props.style)
     console.log(nextProps.style)
-    if(this.props.style.width !== nextProps.style.width) {
-      console.log("RESIZE! ****************************************************** ")
-      this.state.cyjs.container().style.width = nextProps.style.width
+    if(this.props.style !== nextProps.style) {
+      console.log("RESIZE2! ****************************************************** ")
+      this.state.cyjs.container().setAttribute("style", "width: " + nextProps.style.width)
+      this.state.cyjs.container().setAttribute("style", "height: " + nextProps.style.height)
       console.log(this.state.cyjs.container().style)
       this.state.cyjs.resize()
-      console.log(this.state.cyjs.width())
     }
 
     // Check status of network data
