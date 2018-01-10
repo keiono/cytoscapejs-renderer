@@ -1,5 +1,7 @@
 import React, {Component} from 'react'
 
+import {Map} from 'immutable'
+
 import sigma from 'sigma'
 
 import {
@@ -47,26 +49,18 @@ class SigmaRenderer extends Component {
    * All others will be updated by event handlers
    */
   componentWillReceiveProps(nextProps) {
-
-    console.log("IN1))))))))))))))REND update: Should update&&------------------------")
-
-    console.log(nextProps)
-
     if(nextProps.rendererOptions !== undefined &&
       nextProps.rendererOptions.sigmaOptions !== undefined &&
       this.props.rendererOptions.sigmaOptions !== nextProps.rendererOptions.sigmaOptions
     ) {
-      console.log("IN2))))))))))))))REND update: Should update&&------------------------")
 
-      console.log(this.props.rendererOptions.sigmaOptions)
+      const state1 = Map(this.props.rendererOptions.sigmaOptions)
+      const state2 = Map(nextProps.rendererOptions.sigmaOptions)
 
-      const ratio1 = this.props.rendererOptions.sigmaOptions.nodesPowRatio
-      const ratio2 = nextProps.rendererOptions.sigmaOptions.nodesPowRatio
-
-      if(ratio1 !== ratio2) {
+      if(!state1.equals(state2)) {
+        console.log("EQQQQQQQQQQQQQQQQQQQQQQQQ REND update: Should update&&------------------------")
         this.setRenderingOptions(nextProps.rendererOptions.sigmaOptions)
         this.s.refresh()
-
       }
     }
 
@@ -493,10 +487,9 @@ class SigmaRenderer extends Component {
     });
 
 
-    this.s.bind('overNode outNode', (e) => {
+    this.s.bind('overNode', (e) => {
       this.props.eventHandlers.hoverOnNode(e.data.node.id, e.data.node.props)
     })
-
   }
 
 
