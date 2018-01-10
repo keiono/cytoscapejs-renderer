@@ -71,11 +71,11 @@ export const SIZE_SENSITIVE_RENDERING_OPT = {
     defaultEdgeColor: '#DDDDDD',
     minEdgeSize: 0.001,
     maxEdgeSize: 0.1,
-    minNodeSize: 0,
-    maxNodeSize: 20,
+    minNodeSize: 1,
+    maxNodeSize: 5,
     labelThreshold: 4,
     labelSizeRatio: 2,
-    nodesPowRatio: 0.55,
+    nodesPowRatio: 0.25,
     edgesPowRatio: 0.3
   }
 }

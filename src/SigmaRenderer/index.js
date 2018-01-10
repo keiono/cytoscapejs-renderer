@@ -48,8 +48,28 @@ class SigmaRenderer extends Component {
    */
   componentWillReceiveProps(nextProps) {
 
-    console.log('-----------------------=====================-----------------COMMAND')
-    console.log(nextProps.command)
+    console.log("IN1))))))))))))))REND update: Should update&&------------------------")
+
+    console.log(nextProps)
+
+    if(nextProps.rendererOptions !== undefined &&
+      nextProps.rendererOptions.sigmaOptions !== undefined &&
+      this.props.rendererOptions.sigmaOptions !== nextProps.rendererOptions.sigmaOptions
+    ) {
+      console.log("IN2))))))))))))))REND update: Should update&&------------------------")
+
+      console.log(this.props.rendererOptions.sigmaOptions)
+
+      const ratio1 = this.props.rendererOptions.sigmaOptions.nodesPowRatio
+      const ratio2 = nextProps.rendererOptions.sigmaOptions.nodesPowRatio
+
+      if(ratio1 !== ratio2) {
+        this.setRenderingOptions(nextProps.rendererOptions.sigmaOptions)
+        this.s.refresh()
+
+      }
+    }
+
 
     const command = nextProps.command
     const commandName = command.command
