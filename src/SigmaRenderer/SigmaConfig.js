@@ -14,7 +14,7 @@ export const DEFAULT_SETTINGS = {
   'defaultEdgeColor': PRESET_COLORS.BLACK,
   defaultHoverLabelBGColor: '#EEEEFF',
   'labelColor': 'default',
-  'edgeColor': 'source',
+  'edgeColor': 'default',
   'mouseZoomDuration': 0,
   'mouseInertiaDuration': 0,
   doubleClickEnabled: false,
