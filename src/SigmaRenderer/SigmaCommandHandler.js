@@ -59,7 +59,10 @@ const findPath = (camera, graph, parameters) => {
   const path = graph.astar(startId, goalId, {});
 
   if (path === undefined) {
-    return path;
+    return {
+      notFound: true,
+      startId: startId
+    };
   }
 
   path.forEach(node => {
