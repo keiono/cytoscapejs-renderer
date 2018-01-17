@@ -115,11 +115,7 @@ class CytoscapeJsRenderer extends Component {
    */
   componentWillReceiveProps(nextProps) {
 
-    console.log("****************************************************** ")
-    console.log(this.props.style)
-    console.log(nextProps.style)
     if(this.props.style !== nextProps.style) {
-      console.log("RESIZE2! ****************************************************** ")
       this.state.cyjs.container().setAttribute("style", "width: " + nextProps.style.width)
       this.state.cyjs.container().setAttribute("style", "height: " + nextProps.style.height)
       console.log(this.state.cyjs.container().style)
@@ -365,7 +361,11 @@ class CytoscapeJsRenderer extends Component {
 
           const added = cy.add(newEdges)
           added.style({
-            'line-color': edgeColor
+            'line-color': edgeColor,
+            width: 6,
+            opacity: 1,
+            // 'line-style': 'dashed'
+
           })
           this.setState({
             [edgeType]: added

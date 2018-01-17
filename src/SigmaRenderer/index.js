@@ -328,7 +328,6 @@ class SigmaRenderer extends Component {
 
   addEventHandlers = () => {
 
-
     this.s.bind('clickNode', e => {
 
       this.resetView()
