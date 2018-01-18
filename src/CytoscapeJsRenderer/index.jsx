@@ -362,10 +362,8 @@ class CytoscapeJsRenderer extends Component {
           const added = cy.add(newEdges)
           added.style({
             'line-color': edgeColor,
-            width: 6,
-            opacity: 1,
-            // 'line-style': 'dashed'
-
+            width: 3,
+            opacity: 0.95,
           })
           this.setState({
             [edgeType]: added
