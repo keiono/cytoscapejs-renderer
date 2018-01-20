@@ -16,6 +16,8 @@ class CytoscapeJsRenderer extends Component {
   constructor(props) {
     super(props)
 
+
+    console.log("INIT CYUJS==============")
     this.state = {
       cyjs: null,
       rendered: false,
@@ -45,10 +47,16 @@ class CytoscapeJsRenderer extends Component {
       cy = cyjs
     }
 
+    console.log("update1  init CYUJS==============")
+    cy.startBatch();
+
     cy.remove(cy.elements('node'))
     cy.remove(cy.elements('edge'))
     cy.add(network.elements.nodes)
     cy.add(network.elements.edges)
+
+    cy.endBatch();
+    console.log("batch OK  init CYUJS==============")
 
     // Apply optional filter if available
     const command = this.props.rendererOptions.defaultFilter
@@ -61,10 +69,11 @@ class CytoscapeJsRenderer extends Component {
     if (layout !== undefined && layout !== null) {
       this.applyLayout(layout)
     } else {
-      this.applyLayout('cose')
+      this.applyLayout('grid')
     }
 
     cy.fit()
+    console.log("Fit OK  init CYUJS==============")
     this.setEventListener(cy)
 
     // At least executed one time.
@@ -88,6 +97,7 @@ class CytoscapeJsRenderer extends Component {
       visualStyle = config.DEF_VS
     }
 
+    console.log("creating CYUJS==============")
     const cy = cytoscape(
       Object.assign(
         {
@@ -100,6 +110,7 @@ class CytoscapeJsRenderer extends Component {
         }))
     this.state.cyjs = cy
 
+    console.log("done init CYUJS==============")
     // Render actual network
     this.updateCyjsInternal(this.props.network, cy)
   }
