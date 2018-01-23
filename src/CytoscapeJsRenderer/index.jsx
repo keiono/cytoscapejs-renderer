@@ -126,6 +126,9 @@ class CytoscapeJsRenderer extends Component {
    */
   componentWillReceiveProps(nextProps) {
 
+    console.log("New Prop in CYUJS==============")
+    console.log(nextProps)
+
     if(this.props.style !== nextProps.style) {
       this.state.cyjs.container().setAttribute("style", "width: " + nextProps.style.width)
       this.state.cyjs.container().setAttribute("style", "height: " + nextProps.style.height)
@@ -157,6 +160,13 @@ class CytoscapeJsRenderer extends Component {
           this.state.cyjs.style(newVs.style)
         }
       }
+    }
+
+    // Apply layout only when necessary
+    const layout = this.props.rendererOptions.layout
+    const nextLayout = nextProps.rendererOptions.layout
+    if (nextLayout !== undefined && nextLayout !== null && layout !== nextLayout) {
+      this.applyLayout(nextLayout)
     }
 
     if (nextProps.network === this.props.network) {
