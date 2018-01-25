@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import cytoscape from 'cytoscape'
 import regCose from 'cytoscape-cose-bilkent'
 import * as config from './CytoscapeJsConfig'
@@ -12,12 +12,10 @@ regCose(cytoscape)
  * Renderer using Cytoscape.js
  */
 class CytoscapeJsRenderer extends Component {
-
   constructor(props) {
     super(props)
 
-
-    console.log("INIT CYUJS==============")
+    console.log('INIT CYUJS==============')
     this.state = {
       cyjs: null,
       rendered: false,
@@ -30,7 +28,6 @@ class CytoscapeJsRenderer extends Component {
   }
 
   updateCyjsInternal = (network, cyjs) => {
-
     // React only when network data is available.
     if (network === undefined || network === null) {
       return
@@ -47,20 +44,20 @@ class CytoscapeJsRenderer extends Component {
       cy = cyjs
     }
 
-    console.log("update1  init CYUJS==============")
-    cy.startBatch();
+    console.log('update1  init CYUJS==============')
+    cy.startBatch()
 
     cy.remove(cy.elements('node'))
     cy.remove(cy.elements('edge'))
     cy.add(network.elements.nodes)
     cy.add(network.elements.edges)
 
-    cy.endBatch();
-    console.log("batch OK  init CYUJS==============")
+    cy.endBatch()
+    console.log('batch OK  init CYUJS==============')
 
     // Apply optional filter if available
     const command = this.props.rendererOptions.defaultFilter
-    if(command !== undefined && this.state.rendered === false) {
+    if (command !== undefined && this.state.rendered === false) {
       this.runCommand(command)
     }
 
@@ -73,11 +70,11 @@ class CytoscapeJsRenderer extends Component {
     }
 
     cy.fit()
-    console.log("Fit OK  init CYUJS==============")
+    console.log('Fit OK  init CYUJS==============')
     this.setEventListener(cy)
 
     // At least executed one time.
-    this.setState({rendered: true})
+    this.setState({ rendered: true })
   }
 
   componentDidMount() {
@@ -86,7 +83,7 @@ class CytoscapeJsRenderer extends Component {
 
     let visualStyle = null
 
-    if(netStyleProp === undefined) {
+    if (netStyleProp === undefined) {
       visualStyle = config.DEF_VS
     } else {
       visualStyle = netStyleProp.style
@@ -97,20 +94,20 @@ class CytoscapeJsRenderer extends Component {
       visualStyle = config.DEF_VS
     }
 
-    console.log("creating CYUJS==============")
+    console.log('creating CYUJS==============')
     const cy = cytoscape(
-      Object.assign(
-        {
-          container: this.cyjs,
-          elements: [],
-          style: visualStyle,
-          layout: {
-            name: config.DEF_LAYOUT
-          }
-        }))
+      Object.assign({
+        container: this.cyjs,
+        elements: [],
+        style: visualStyle,
+        layout: {
+          name: config.DEF_LAYOUT
+        }
+      })
+    )
     this.state.cyjs = cy
 
-    console.log("done init CYUJS==============")
+    console.log('done init CYUJS==============')
     // Render actual network
     this.updateCyjsInternal(this.props.network, cy)
   }
@@ -125,13 +122,16 @@ class CytoscapeJsRenderer extends Component {
    * whether update is necessary or not.
    */
   componentWillReceiveProps(nextProps) {
-
-    console.log("New Prop in CYUJS==============")
+    console.log('New Prop in CYUJS==============')
     console.log(nextProps)
 
-    if(this.props.style !== nextProps.style) {
-      this.state.cyjs.container().setAttribute("style", "width: " + nextProps.style.width)
-      this.state.cyjs.container().setAttribute("style", "height: " + nextProps.style.height)
+    if (this.props.style !== nextProps.style) {
+      this.state.cyjs
+        .container()
+        .setAttribute('style', 'width: ' + nextProps.style.width)
+      this.state.cyjs
+        .container()
+        .setAttribute('style', 'height: ' + nextProps.style.height)
       console.log(this.state.cyjs.container().style)
       this.state.cyjs.resize()
     }
@@ -143,7 +143,7 @@ class CytoscapeJsRenderer extends Component {
 
     const command = nextProps.command
     if (command !== this.props.command) {
-      this.runCommand(command);
+      this.runCommand(command)
     }
 
     // Check visual style
@@ -151,7 +151,7 @@ class CytoscapeJsRenderer extends Component {
     const currentVs = this.props.networkStyle
 
     if (newVs !== undefined && newVs !== null) {
-      if(currentVs === null || currentVs === undefined) {
+      if (currentVs === null || currentVs === undefined) {
         this.state.cyjs.style(newVs.style)
       } else {
         const name = currentVs.name
@@ -165,7 +165,11 @@ class CytoscapeJsRenderer extends Component {
     // Apply layout only when necessary
     const layout = this.props.rendererOptions.layout
     const nextLayout = nextProps.rendererOptions.layout
-    if (nextLayout !== undefined && nextLayout !== null && layout !== nextLayout) {
+    if (
+      nextLayout !== undefined &&
+      nextLayout !== null &&
+      layout !== nextLayout
+    ) {
       this.applyLayout(nextLayout)
     }
 
@@ -186,7 +190,6 @@ class CytoscapeJsRenderer extends Component {
   }
 
   runCommand = command => {
-
     // Execute Cytoscape command
     if (command === null) {
       return
@@ -215,22 +218,24 @@ class CytoscapeJsRenderer extends Component {
       const sourcePos = sourceNode.position()
       let idx = 0
 
-      sourceNode.incomers().select().nodes()
+      sourceNode
+        .incomers()
+        .select()
+        .nodes()
         .forEach(node => {
           if (node.data('Gene_or_Term') === 'Gene') {
             node.position({
               x: 1600,
-              y: sourcePos.y + (idx * 30)
+              y: sourcePos.y + idx * 30
             })
             idx++
           }
-        });
-
+        })
     } else if (commandName === 'select') {
       const idList = commandParams.idList
 
-      let selected = idList.map(id => (id.replace(/\:/, '\\:')))
-      selected = selected.map(id => ('#' + id))
+      let selected = idList.map(id => id.replace(/\:/, '\\:'))
+      selected = selected.map(id => '#' + id)
 
       const strVal = selected.toString()
       const target = cy.elements(strVal)
@@ -241,24 +246,23 @@ class CytoscapeJsRenderer extends Component {
       const colorMap = commandParams.groupColors
 
       target.select()
-      if(commandParams.selectedColor !== undefined) {
+      if (commandParams.selectedColor !== undefined) {
         target.style({
           'background-color': commandParams.selectedColor
         })
       }
 
       // Multiple colors
-      if(colorMap !== undefined) {
+      if (colorMap !== undefined) {
         target.forEach(node => {
-
           const colors = []
 
           const nodeData = node.data()
           const keys = Object.keys(nodeData)
 
           keys.forEach(key => {
-            if(key.startsWith('Group')) {
-              if(nodeData[key]) {
+            if (key.startsWith('Group')) {
+              if (nodeData[key]) {
                 const parts = key.split('_')
                 const groupName = parts[1] + ':' + parts[2]
                 const color = colorMap.get(groupName)
@@ -267,43 +271,40 @@ class CytoscapeJsRenderer extends Component {
             }
           })
 
-          if(colors.size === 1) {
-            node.style({'background-color': colors[0]})
+          if (colors.size === 1) {
+            node.style({ 'background-color': colors[0] })
           } else {
             const colorCount = colors.length
-            const size = 100.0/colorCount
+            const size = 100.0 / colorCount
             const style = {
               'pie-size': '95%',
               'background-opacity': 0
             }
 
-            for(let i = 0; i<colorCount; i++) {
+            for (let i = 0; i < colorCount; i++) {
               const index = i + 1
-              style['pie-' + index +'-background-color'] = colors[i]
-              style['pie-' + index +'-background-size'] = size
+              style['pie-' + index + '-background-color'] = colors[i]
+              style['pie-' + index + '-background-size'] = size
             }
             node.style(style)
           }
         })
-
       }
     } else if (commandName === 'unselect') {
       const idList = commandParams.idList
 
-      let selected = idList.map(id => (id.replace(/\:/, '\\:')))
-      selected = selected.map(id => ('#' + id))
+      let selected = idList.map(id => id.replace(/\:/, '\\:'))
+      selected = selected.map(id => '#' + id)
 
       const strVal = selected.toString()
 
       const target = cy.elements(strVal)
       target.unselect()
       target.removeStyle()
-
     } else if (commandName === 'focus') {
-
       const idList = commandParams.idList
-      let selected = idList.map(id => (id.replace(/\:/, '\\:')))
-      selected = selected.map(id => ('#' + id))
+      let selected = idList.map(id => id.replace(/\:/, '\\:'))
+      selected = selected.map(id => '#' + id)
       const strVal = selected.toString()
 
       const target = cy.elements(strVal)
@@ -313,7 +314,6 @@ class CytoscapeJsRenderer extends Component {
       target.addClass('focused')
 
       cy.fit(target, 400)
-
     } else if (commandName === 'filter') {
       const options = commandParams.options
       const filterType = options.type
@@ -324,7 +324,7 @@ class CytoscapeJsRenderer extends Component {
       if (filterType === 'numeric') {
         cy.startBatch()
 
-        if(isPrimary) {
+        if (isPrimary) {
           // Before filtering, restore all original edges
           const hiddenEdges = this.state.hiddenEdges
           if (hiddenEdges !== undefined) {
@@ -362,7 +362,7 @@ class CytoscapeJsRenderer extends Component {
           })
           toBeRemoved.remove()
 
-          if(this.state.lastFilter !== undefined) {
+          if (this.state.lastFilter !== undefined) {
             const unnecessary = cy.elements(this.state.lastFilter)
             unnecessary.remove()
           }
@@ -374,17 +374,16 @@ class CytoscapeJsRenderer extends Component {
       const edgeType = commandParams.edgeType
       const edgeColor = commandParams.edgeColor
 
-      if(edgeType !== undefined) {
+      if (edgeType !== undefined) {
         cy.startBatch()
 
         const newEdges = this.expandEdges(edgeType, cy.edges())
-        if(newEdges.length !==0) {
-
+        if (newEdges.length !== 0) {
           const added = cy.add(newEdges)
           added.style({
             'line-color': edgeColor,
             width: 3,
-            opacity: 0.95,
+            opacity: 0.95
           })
           this.setState({
             [edgeType]: added
@@ -396,7 +395,7 @@ class CytoscapeJsRenderer extends Component {
       // Use edge attributes to create individual edges
       const edgeType = commandParams
 
-      if(edgeType !== undefined) {
+      if (edgeType !== undefined) {
         cy.startBatch()
 
         const toBeRemoved = this.collapseEdges(edgeType, cy.edges())
@@ -409,7 +408,7 @@ class CytoscapeJsRenderer extends Component {
     }
 
     // Callback
-    this.props.eventHandlers.commandFinished(command);
+    this.props.eventHandlers.commandFinished(command)
 
     // Enable it again
     this.state.cyjs.on(config.SUPPORTED_EVENTS, this.cyEventHandler)
@@ -457,13 +456,12 @@ class CytoscapeJsRenderer extends Component {
   }
 
   applyLayout = layout => {
-    const cy = this.state.cyjs;
+    const cy = this.state.cyjs
 
     if (layout !== undefined) {
+      let layoutAlgorithm = null
 
-      let layoutAlgorithm = null;
-
-      if(layout === 'cose-bilkent') {
+      if (layout === 'cose-bilkent') {
         const layoutOptions = {
           name: 'cose-bilkent',
           animate: 'end',
@@ -480,27 +478,27 @@ class CytoscapeJsRenderer extends Component {
         })
       }
 
-
-      if(layoutAlgorithm !== undefined) {
+      if (layoutAlgorithm !== undefined) {
         layoutAlgorithm.run()
-        this.setState({currentLayout: layout})
+        this.setState({ currentLayout: layout })
       }
     }
   }
 
   findPath = (s, g) => {
-    const aStar = this.state.cyjs.elements().aStar({root: "#" + s, goal: "#" + g});
-    aStar.path.select();
+    const aStar = this.state.cyjs
+      .elements()
+      .aStar({ root: '#' + s, goal: '#' + g })
+    aStar.path.select()
   }
-
 
   cyEventHandler = event => {
     this.state.cyjs.off(config.SUPPORTED_EVENTS)
 
     const cy = this.state.cyjs
     // const eventType = event.originalEvent.type;
-    const target = event.target;
-    const eventType = event.type;
+    const target = event.target
+    const eventType = event.type
 
     if (target === undefined || target === null) {
       return
@@ -511,30 +509,27 @@ class CytoscapeJsRenderer extends Component {
 
     console.log(eventType)
 
-
     switch (eventType) {
       case config.CY_EVENTS.boxstart:
-        this.setState({boxSelection: true})
-        break;
+        this.setState({ boxSelection: true })
+        break
 
       case config.CY_EVENTS.boxselect:
-
         // Handle multiple selection
         if (this.state.boxSelection) {
           const nodes = cy.$('node:selected').map(node => {
-
             const nodeData = node.data()
             nodeProps[nodeData.id] = nodeData
 
             return nodeData.id
-          });
-          const edges = cy.$('edge:selected').map(edge => edge.data().id);
+          })
+          const edges = cy.$('edge:selected').map(edge => edge.data().id)
 
           this.props.eventHandlers.selectNodes(nodes, nodeProps)
           this.props.eventHandlers.selectEdges(edges)
-          this.setState({boxSelection: false});
+          this.setState({ boxSelection: false })
         }
-        break;
+        break
       case config.CY_EVENTS.select:
         if (!this.state.boxSelection) {
           if (target.isNode()) {
@@ -549,17 +544,17 @@ class CytoscapeJsRenderer extends Component {
             this.props.eventHandlers.selectEdges([edgeId], edgeProps)
           }
         }
-        break;
+        break
       case config.CY_EVENTS.unselect:
         if (target.isNode()) {
           this.props.eventHandlers.deselectNodes([target.data().id])
         } else {
           this.props.eventHandlers.deselectEdges([target.data().id])
         }
-        break;
+        break
 
       default:
-        break;
+        break
     }
     this.state.cyjs.on(config.SUPPORTED_EVENTS, this.cyEventHandler)
   }
@@ -570,17 +565,15 @@ class CytoscapeJsRenderer extends Component {
   setEventListener(cy) {
     cy.on(config.SUPPORTED_EVENTS, this.cyEventHandler)
 
-    cy.on('tap', function (e) {
+    cy.on('tap', function(e) {
       if (e.target === cy) {
-        cy.elements().removeClass('faded focused');
+        cy.elements().removeClass('faded focused')
       }
     })
   }
 
   render() {
-    return (
-      <div ref={(cyjs) => this.cyjs = cyjs} style={this.props.style}/>
-    )
+    return <div ref={cyjs => (this.cyjs = cyjs)} style={this.props.style} />
   }
 }
 
