@@ -15,7 +15,6 @@ class CytoscapeJsRenderer extends Component {
   constructor(props) {
     super(props)
 
-    console.log('INIT CYUJS==============')
     this.state = {
       cyjs: null,
       rendered: false,
@@ -44,7 +43,6 @@ class CytoscapeJsRenderer extends Component {
       cy = cyjs
     }
 
-    console.log('update1  init CYUJS==============')
     cy.startBatch()
 
     cy.remove(cy.elements('node'))
@@ -53,7 +51,6 @@ class CytoscapeJsRenderer extends Component {
     cy.add(network.elements.edges)
 
     cy.endBatch()
-    console.log('batch OK  init CYUJS==============')
 
     // Apply optional filter if available
     const command = this.props.rendererOptions.defaultFilter
@@ -94,7 +91,6 @@ class CytoscapeJsRenderer extends Component {
       visualStyle = config.DEF_VS
     }
 
-    console.log('creating CYUJS==============')
     const cy = cytoscape(
       Object.assign({
         container: this.cyjs,
@@ -107,7 +103,6 @@ class CytoscapeJsRenderer extends Component {
     )
     this.state.cyjs = cy
 
-    console.log('done init CYUJS==============')
     // Render actual network
     this.updateCyjsInternal(this.props.network, cy)
   }
@@ -122,9 +117,6 @@ class CytoscapeJsRenderer extends Component {
    * whether update is necessary or not.
    */
   componentWillReceiveProps(nextProps) {
-    console.log('New Prop in CYUJS==============')
-    console.log(nextProps)
-
     if (this.props.style !== nextProps.style) {
       this.state.cyjs
         .container()
@@ -132,7 +124,6 @@ class CytoscapeJsRenderer extends Component {
       this.state.cyjs
         .container()
         .setAttribute('style', 'height: ' + nextProps.style.height)
-      console.log(this.state.cyjs.container().style)
       this.state.cyjs.resize()
     }
 
@@ -144,6 +135,7 @@ class CytoscapeJsRenderer extends Component {
     const command = nextProps.command
     if (command !== this.props.command) {
       this.runCommand(command)
+      return
     }
 
     // Check visual style
@@ -151,6 +143,7 @@ class CytoscapeJsRenderer extends Component {
     const currentVs = this.props.networkStyle
 
     if (newVs !== undefined && newVs !== null) {
+      console.log('* Calling VS')
       if (currentVs === null || currentVs === undefined) {
         this.state.cyjs.style(newVs.style)
       } else {
@@ -182,11 +175,6 @@ class CytoscapeJsRenderer extends Component {
     }
 
     this.updateCyjs(nextProps.network)
-
-    // const command = nextProps.command
-    // if(command !== this.props.command) {
-    //   this.runCommand(command);
-    // }
   }
 
   runCommand = command => {
@@ -239,9 +227,6 @@ class CytoscapeJsRenderer extends Component {
 
       const strVal = selected.toString()
       const target = cy.elements(strVal)
-
-      // cy.elements().addClass('faded')
-      // target.removeClass('faded')
 
       const colorMap = commandParams.groupColors
 
@@ -506,8 +491,6 @@ class CytoscapeJsRenderer extends Component {
 
     const nodeProps = {}
     const edgeProps = {}
-
-    console.log(eventType)
 
     switch (eventType) {
       case config.CY_EVENTS.boxstart:
