@@ -590,15 +590,15 @@ class SigmaRenderer extends Component {
         }
 
 
-        const radius = circleCount * 2 + 9
-        const newPos = project(count + circleCount*2, radius)
-        count = count + 10
-        if(count%36 === 0) {
-          circleCount++
-        }
-
-        nNode.x = newPos[0] + node.x
-        nNode.y = newPos[1] + node.y
+        // const radius = circleCount * 2 + 9
+        // const newPos = project(count + circleCount*2, radius)
+        // count = count + 10
+        // if(count%36 === 0) {
+        //   circleCount++
+        // }
+        //
+        // nNode.x = newPos[0] + node.x
+        // nNode.y = newPos[1] + node.y
 
 
         nNode.color = '#FF7700'
