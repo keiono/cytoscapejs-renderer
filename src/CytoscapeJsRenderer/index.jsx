@@ -67,7 +67,6 @@ class CytoscapeJsRenderer extends Component {
     }
 
     cy.fit()
-    console.log('Fit OK  init CYUJS==============')
     this.setEventListener(cy)
 
     // At least executed one time.
@@ -143,7 +142,6 @@ class CytoscapeJsRenderer extends Component {
     const currentVs = this.props.networkStyle
 
     if (newVs !== undefined && newVs !== null) {
-      console.log('* Calling VS')
       if (currentVs === null || currentVs === undefined) {
         this.state.cyjs.style(newVs.style)
       } else {
