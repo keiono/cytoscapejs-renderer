@@ -21,6 +21,10 @@ import {SigmaCommandExecutor} from './SigmaCommandHandler'
 const DEF_EDGE_WIDTH = 0.01
 
 
+let globalCounter = 0
+let globalFlag = false
+
+
 class SigmaRenderer extends Component {
   constructor (props, context) {
     super(props, context)
@@ -257,6 +261,7 @@ class SigmaRenderer extends Component {
       this.bindCameraEventHandler(numNodes)
     }
 
+
     this.addEventHandlers()
 
 
@@ -296,6 +301,25 @@ class SigmaRenderer extends Component {
 
       // Rough estimate for number of nodes in current view
       const viewportSize = this.cam.quadtree._cache.result.length
+
+
+      // Test code to check viewport objects
+      //
+      // if(globalFlag === false) {
+      //   globalFlag = true
+      //
+      //   setTimeout(() => {
+      //     const iw = window.innerWidth
+      //     const ih = window.innerHeight
+      //     console.log(iw, ih)
+      //     const rect1 = this.cam.getRectangle(iw, ih)
+      //     console.log("**Camera: ", rect1)
+      //
+      //     console.log(this.cam.quadtree.area(rect1))
+      //     globalFlag = false
+      //     globalCounter++
+      //   }, 1000)
+      // }
 
 
       if (viewportSize <= this.state.th) {
