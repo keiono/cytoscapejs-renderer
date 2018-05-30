@@ -62,12 +62,10 @@ class SigmaRenderer extends Component {
       const state2 = Map(nextProps.rendererOptions.sigmaOptions)
 
       if(!state1.equals(state2)) {
-        console.log("EQQQQQQQQQQQQQQQQQQQQQQQQ REND update: Should update&&------------------------")
         this.setRenderingOptions(nextProps.rendererOptions.sigmaOptions)
         this.s.refresh()
       }
     }
-
 
     const command = nextProps.command
     const commandName = command.command
@@ -82,6 +80,8 @@ class SigmaRenderer extends Component {
         // Execute command without any parameters
         result = SigmaCommandExecutor(commandName, [this.cam, this.s.graph])
       } else {
+        this.s.settings('minEdgeSize', 0.35)
+        this.s.settings('maxEdgeSize', 1)
         result = SigmaCommandExecutor(commandName, [this.cam, this.s.graph, params])
       }
 
@@ -261,7 +261,6 @@ class SigmaRenderer extends Component {
       this.bindCameraEventHandler(numNodes)
     }
 
-
     this.addEventHandlers()
 
 
@@ -295,7 +294,6 @@ class SigmaRenderer extends Component {
   bindCameraEventHandler = (numNodes) => {
     this.setState({th: numNodes * 0.15})
     this.setState({th2: numNodes * 0.9})
-
 
     this.cam.bind('coordinatesUpdated', () => {
 
@@ -362,7 +360,6 @@ class SigmaRenderer extends Component {
 
       const result = SigmaCommandExecutor('findPath', [this.cam, this.s.graph, [nodeId, this.state.rootId]])
 
-
       const label = node.props.Label
       const aliases = this.state.originalNodes[label]
 
@@ -423,8 +420,9 @@ class SigmaRenderer extends Component {
 
         if(edge.source === nodeId) {
           // Out edge
-          edge.color = PRESET_COLORS.SELECT
-          edge.size = 1000
+          // edge.color = PRESET_COLORS.SELECT
+          edge.color = '#FF0000'
+          edge.size = 900
         } else if (sourceNode.props.Label.startsWith('Hidden')) {
           edge.color = PRESET_COLORS.BLACK
           edge.size = 3
@@ -482,8 +480,6 @@ class SigmaRenderer extends Component {
 
 
       result.forEach(node => {
-
-        console.log("**node2: ", node);
         node.color = "#FF0000";
       });
 
