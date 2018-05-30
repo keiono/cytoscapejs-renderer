@@ -66,6 +66,8 @@ const findPath = (camera, graph, parameters) => {
   }
 
   path.forEach(node => {
+
+    console.log("**node: ", node);
     node.color = "#FF0000";
   });
 

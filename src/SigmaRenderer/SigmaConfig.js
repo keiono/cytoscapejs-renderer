@@ -28,7 +28,7 @@ export const DEFAULT_SETTINGS = {
   maxNodeSize: 15,
 
   hideEdgesOnMove: true,
-  minEdgeSize: 0.001,
+  minEdgeSize: 0.01,
   maxEdgeSize: 0.3,
   enableEdgeHovering: false,
   edgeHoverColor: 'edge',
@@ -58,8 +58,8 @@ export const SIZE_SENSITIVE_RENDERING_OPT = {
     labelSizeRatio: 1,
     nodesPowRatio: 0.8,
     defaultEdgeType: 'curve',
-    minEdgeSize: 0.01,
-    maxEdgeSize: 0.5,
+    minEdgeSize: 0.1,
+    maxEdgeSize: 0.9,
   },
   MEDIUM: {
 
@@ -68,9 +68,8 @@ export const SIZE_SENSITIVE_RENDERING_OPT = {
     labelColor: 'default',
     defaultLabelColor: '#444444',
     edgeColor: 'default',
-    defaultEdgeColor: '#DDDDDD',
-    minEdgeSize: 0.001,
-    maxEdgeSize: 0.1,
+    minEdgeSize: 0.1,
+    maxEdgeSize: 0.9,
     minNodeSize: 1,
     maxNodeSize: 5,
     labelThreshold: 4,

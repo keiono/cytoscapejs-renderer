@@ -360,6 +360,8 @@ class SigmaRenderer extends Component {
       const nodeId = node.id
       const nodeProps = {}
 
+      const result = SigmaCommandExecutor('findPath', [this.cam, this.s.graph, [nodeId, this.state.rootId]])
+
 
       const label = node.props.Label
       const aliases = this.state.originalNodes[label]
@@ -368,7 +370,6 @@ class SigmaRenderer extends Component {
 
         const links = []
         aliases.forEach(id => {
-          console.log("Adding: " + id)
 
           const linkEdgeId = nodeId + '-hidden-' + id
           const linkToOriginal = {
@@ -411,7 +412,7 @@ class SigmaRenderer extends Component {
 
 
       this.s.settings('labelColor', 'node');
-      this.s.settings('minEdgeSize', 0.1);
+      this.s.settings('minEdgeSize', 0.3);
       this.s.settings('maxEdgeSize', 5);
 
       connectingEdges.forEach(edge => {
@@ -423,23 +424,24 @@ class SigmaRenderer extends Component {
         if(edge.source === nodeId) {
           // Out edge
           edge.color = PRESET_COLORS.SELECT
-          edge.size = 10
+          edge.size = 1000
         } else if (sourceNode.props.Label.startsWith('Hidden')) {
           edge.color = PRESET_COLORS.BLACK
-          edge.size = 0.5
+          edge.size = 3
         } else if (sourceNode.props.NodeType !== 'Gene') {
           edge.color = PRESET_COLORS.SELECT
-          edge.size = 2
+          edge.size = 3
         } else {
           edge.color = PRESET_COLORS.LIGHT
-          edge.size = 2
+          edge.size = 3
         }
+
 
         if(edge.edgeType === 'link') {
           edge.color = '#FF7700'
           edge.type = 'arrow'
+          edge.size = 10
           if(!targetNode.props.Hidden) {
-            edge.size = 1000
             edge.color= '#304FFE'
           }
         }
@@ -476,8 +478,14 @@ class SigmaRenderer extends Component {
 
       // Move camera to node
       // SigmaCommandExecutor('zoomToNode', [this.cam, node, 0.02])
-      const result = SigmaCommandExecutor('findPath', [this.cam, this.s.graph, [nodeId, this.state.rootId]])
+      // const result = SigmaCommandExecutor('findPath', [this.cam, this.s.graph, [nodeId, this.state.rootId]])
 
+
+      result.forEach(node => {
+
+        console.log("**node2: ", node);
+        node.color = "#FF0000";
+      });
 
       this.props.eventHandlers.commandFinished('findPath', result)
 
