@@ -517,6 +517,10 @@ class SigmaRenderer extends Component {
     this.s.bind('overNode', (e) => {
       this.props.eventHandlers.hoverOnNode(e.data.node.id, e.data.node.props)
     })
+
+    this.s.bind('outNode', (e) => {
+      this.props.eventHandlers.hoverOutNode(e.data.node.id, e.data.node.props)
+    })
   }
 
 
