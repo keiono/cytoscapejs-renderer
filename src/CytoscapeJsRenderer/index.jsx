@@ -18,7 +18,8 @@ class CytoscapeJsRenderer extends Component {
     this.state = {
       cyjs: null,
       rendered: false,
-      currentLayout: null
+      currentLayout: null,
+      networkData: null
     }
   }
 
@@ -42,6 +43,8 @@ class CytoscapeJsRenderer extends Component {
     } else {
       cy = cyjs
     }
+
+    this.setState({networkData: network.data})
 
     cy.startBatch()
 
@@ -360,7 +363,8 @@ class CytoscapeJsRenderer extends Component {
       if (edgeType !== undefined) {
         cy.startBatch()
 
-        const newEdges = this.expandEdges(edgeType, cy.edges())
+        const mainEdgeType = this.state.networkData['Main Feature'].replace(/ /g, '_')
+        const newEdges = this.expandEdges(edgeType, cy.edges(), mainEdgeType)
         if (newEdges.length !== 0) {
           const added = cy.add(newEdges)
           added.style({
@@ -400,7 +404,7 @@ class CytoscapeJsRenderer extends Component {
   /*
     Using data type to add more edges to the primary one
    */
-  expandEdges = (edgeType, edges) => {
+  expandEdges = (edgeType, edges, primaryEdgeType='RF_score') => {
     let i = edges.length
     const newEdges = []
 
@@ -414,7 +418,7 @@ class CytoscapeJsRenderer extends Component {
             source: edge.data('source'),
             target: edge.data('target'),
             interaction: edgeType,
-            RF_score: edge.data('RF_score'),
+            [primaryEdgeType]: edge.data(primaryEdgeType),
             [edgeType]: edge.data(edgeType)
           }
         }
