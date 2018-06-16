@@ -307,7 +307,10 @@ class CytoscapeJsRenderer extends Component {
       const range = options.range
       const targetType = options.targetType
 
+      console.log('======FILTER:')
+
       if (filterType === 'numeric') {
+
         cy.startBatch()
 
         if (isPrimary) {
@@ -328,6 +331,7 @@ class CytoscapeJsRenderer extends Component {
 
           toBeRemoved.remove()
         } else {
+          console.log('======NON-primary')
           // Before filtering, restore all original edges
           const hiddenEdges = this.state[targetType]
           if (hiddenEdges !== undefined) {
@@ -415,6 +419,7 @@ class CytoscapeJsRenderer extends Component {
         const newEdge = {
           data: {
             id: edge.data('id') + '-' + edgeType,
+            // id: Math.floor(Math.random() * 100000) + '-' + edgeType,
             source: edge.data('source'),
             target: edge.data('target'),
             interaction: edgeType,
