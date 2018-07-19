@@ -221,6 +221,14 @@ class CytoscapeJsRenderer extends Component {
           }
         })
     } else if (commandName === 'select') {
+
+      // Clear
+      cy.startBatch()
+
+      // const allNodes = cy.nodes()
+      // allNodes.unselect()
+      // allNodes.removeStyle()
+
       const idList = commandParams.idList
 
       let selected = idList.map(id => id.replace(/\:/, '\\:'))
@@ -229,16 +237,21 @@ class CytoscapeJsRenderer extends Component {
       const strVal = selected.toString()
       const target = cy.elements(strVal)
 
-      const colorMap = commandParams.groupColors
 
       target.select()
       if (commandParams.selectedColor !== undefined) {
         target.style({
           'background-color': commandParams.selectedColor
         })
+
+        cy.endBatch()
+        return
       }
 
+      cy.endBatch()
+
       // Multiple colors
+      const colorMap = commandParams.groupColors
       if (colorMap !== undefined) {
         target.forEach(node => {
           const colors = []
@@ -284,9 +297,20 @@ class CytoscapeJsRenderer extends Component {
 
       const strVal = selected.toString()
 
+      cy.startBatch()
       const target = cy.elements(strVal)
       target.unselect()
       target.removeStyle()
+      cy.endBatch()
+
+    } else if (commandName === 'unselectAll') {
+
+      cy.startBatch()
+      const target = cy.nodes()
+      target.unselect()
+      target.removeStyle()
+      cy.endBatch()
+
     } else if (commandName === 'focus') {
       const idList = commandParams.idList
       let selected = idList.map(id => id.replace(/\:/, '\\:'))
@@ -306,8 +330,6 @@ class CytoscapeJsRenderer extends Component {
       const isPrimary = options.isPrimary
       const range = options.range
       const targetType = options.targetType
-
-      console.log('======FILTER:')
 
       if (filterType === 'numeric') {
 
