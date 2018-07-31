@@ -20,7 +20,7 @@
     "src/*"
   ],
   "scripts": {
-    "build": "./node_modules/.bin/webpack --mode production --progress --colors",
+    "build": "./node_modules/.bin/webpack --mode development --progress --colors",
     "clean": "rm build/*",
     "lint": "eslint src/; exit 0",
     "test": "eslint src/ && jest",

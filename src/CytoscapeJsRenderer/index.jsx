@@ -114,6 +114,26 @@ class CytoscapeJsRenderer extends Component {
     return false
   }
 
+  select(selected) {
+
+    const cy = this.state.cyjs
+    cy.off(config.SUPPORTED_EVENTS)
+
+    cy.startBatch()
+
+    const idList = selected.nodes
+    if(idList.length === 0) {
+      cy.nodes().unselect()
+    } else {
+      const selected2 = idList.map(id => '#' + id)
+      const strVal = selected2.toString()
+      cy.elements(strVal).select()
+    }
+
+    cy.endBatch()
+    cy.on(config.SUPPORTED_EVENTS, this.cyEventHandler)
+  }
+
   /**
    * This is the main function to determine
    * whether update is necessary or not.
@@ -132,6 +152,10 @@ class CytoscapeJsRenderer extends Component {
     // Check status of network data
     if (nextProps.network === undefined) {
       return
+    }
+
+    if(nextProps.selected !== this.props.selected) {
+      this.select(nextProps.selected)
     }
 
     const command = nextProps.command
