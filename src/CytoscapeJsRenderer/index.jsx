@@ -114,6 +114,7 @@ class CytoscapeJsRenderer extends Component {
     return false
   }
 
+
   select(selected) {
 
     const cy = this.state.cyjs
@@ -122,6 +123,20 @@ class CytoscapeJsRenderer extends Component {
     cy.startBatch()
 
     const idList = selected.nodes
+    const idListPermanent = [...selected.nodesPerm]
+
+
+    if(idListPermanent.length === 0) {
+      cy.nodes().removeStyle()
+    } else {
+      cy.nodes().removeStyle()
+      const permSelected = idListPermanent.map(id => '#' + id)
+      const permSelectedStr = permSelected.toString()
+      cy.elements(permSelectedStr).style({
+        'background-color': 'green'
+      })
+    }
+
     if(idList.length === 0) {
       cy.nodes().unselect()
     } else {
