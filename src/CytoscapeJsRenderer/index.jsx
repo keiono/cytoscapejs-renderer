@@ -133,7 +133,8 @@ class CytoscapeJsRenderer extends Component {
       const permSelected = idListPermanent.map(id => '#' + id)
       const permSelectedStr = permSelected.toString()
       cy.elements(permSelectedStr).style({
-        'background-color': 'green'
+        'background-color': 'green',
+        'background-opacity': 1
       })
     }
 
